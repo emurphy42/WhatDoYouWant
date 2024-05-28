@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics.PackedVector;
+using Microsoft.Xna.Framework.Input;
 using Netcode;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -32,6 +33,8 @@ namespace WhatDoYouWant
         private const string ResponseToken_Polyculture = "Polyculture";
         private const string ResponseToken_Cancel = "Cancel";
 
+        private const string CommunityCenter_Money = "-1";
+
         private const string CookingIngredient_AnyMilk = "-6";
         private const string CookingIngredient_AnyEgg = "-5";
         private const string CookingIngredient_AnyFish = "-4";
@@ -51,6 +54,7 @@ namespace WhatDoYouWant
                 return;
             }
 
+            // TODO option to omit things already completed (check mail / achievement data)
             List<Response> responseList = new();
             responseList.Add(new Response(responseKey: ResponseToken_CommunityCenter, responseText: "Community Center"));
             responseList.Add(new Response(responseKey: ResponseToken_Shipping, responseText: "Full Shipment"));
@@ -71,7 +75,9 @@ namespace WhatDoYouWant
         {
             switch (answer)
             {
-                // TODO CommunityCenter
+                case ResponseToken_CommunityCenter:
+                    ShowCommunityCenterList();
+                    break;
                 case ResponseToken_Shipping:
                     ShowFullShipmentList(who);
                     break;
@@ -85,7 +91,7 @@ namespace WhatDoYouWant
                     ShowFishingList(who);
                     break;
                 case ResponseToken_Museum:
-                    ShowMuseumList(who);
+                    ShowMuseumList();
                     break;
                 case ResponseToken_Polyculture:
                     ShowPolycultureList();
@@ -96,6 +102,150 @@ namespace WhatDoYouWant
                     Game1.drawDialogueNoTyping("Not yet implemented");
                     break;
             }
+        }
+
+        public void ShowCommunityCenterList()
+        {
+            var linesToDisplay = new List<string>();
+
+            if (Game1.player.mailReceived.Contains("ccIsComplete"))
+            {
+                linesToDisplay.Add("Full Shipment is complete!");
+                ShowLines(linesToDisplay);
+                return;
+            }
+
+            var bundleAreas = new Dictionary<int, string>();
+            var bundleNames = new Dictionary<int, string>();
+            var bundleOptions = new Dictionary<int, int>(); // total number of bundle options, whether or not already donated
+            var bundleSlotsNeeded = new Dictionary<int, int>(); // e.g. Crab Pot Bundle has 10 options, but donating any 5 completes it
+            var bundleItems = new Dictionary<int, List<string>>(); // list of options not already donated
+
+            // adapted from base game logic for Community Center to refresh its bundle data
+            var communityCenter = Game1.RequireLocation<CommunityCenter>("CommunityCenter");
+            var bundleDictionary = communityCenter.bundlesDict();
+            var bundleData = Game1.netWorldState.Value.BundleData;
+            foreach (var keyValuePair in bundleData)
+            {
+                // e.g. key = "Pantry/0", value = "Spring Crops/O 465 20/24 1 0 188 1 0 190 1 0 192 1 0/0"
+                // https://stardewvalleywiki.com/Modding:Bundles
+                var keyArray = keyValuePair.Key.Split('/');
+
+                var areaName = keyArray[0];
+                if (!communityCenter.shouldNoteAppearInArea(CommunityCenter.getAreaNumberFromName(areaName)))
+                {
+                    continue;
+                }
+
+                var bundleId = Convert.ToInt32(keyArray[1]);
+                if (!bundleDictionary.ContainsKey(bundleId))
+                {
+                    continue;
+                }
+
+                var valueArray = keyValuePair.Value.Split('/');
+
+                bundleAreas[bundleId] = areaName;
+                bundleNames[bundleId] = valueArray[0];
+                bundleSlotsNeeded[bundleId] = 0;
+                if (valueArray.Length > 4 && Int32.TryParse(valueArray[4], out int slotsNeeded))
+                {
+                    bundleSlotsNeeded[bundleId] = slotsNeeded;
+                }
+                bundleItems[bundleId] = new List<string>();
+
+                var itemsNeededList = ArgUtility.SplitBySpace(valueArray[2]);
+                bundleOptions[bundleId] = itemsNeededList.Length / 3;
+                for (var index = 0; index < itemsNeededList.Length; index += 3)
+                {
+                    if (bundleDictionary[bundleId][index / 3])
+                    {
+                        continue;
+                    }
+
+                    string itemId;
+                    if (int.TryParse(itemsNeededList[index], out int result) && result < 0)
+                    {
+                        itemId = result.ToString();
+                    }
+                    else
+                    {
+                        var data = ItemRegistry.GetData(itemsNeededList[index]);
+                        itemId = (data != null) ? data.QualifiedItemId : "(O)" + itemsNeededList[index];
+                    }
+                    var itemQuantityNeeded = Convert.ToInt32(itemsNeededList[index + 1]);
+                    var minimumQuality = Convert.ToInt32(itemsNeededList[index + 2]);
+
+                    string itemDescription;
+                    switch (itemId)
+                    {
+                        case CommunityCenter_Money:
+                            itemDescription = $"{itemQuantityNeeded}g";
+                            break;
+                        case CookingIngredient_AnyMilk:
+                            itemDescription = "Milk (any)";
+                            break;
+                        case CookingIngredient_AnyEgg:
+                            itemDescription = "Egg (any)";
+                            break;
+                        case CookingIngredient_AnyFish:
+                            itemDescription = "Fish (any)";
+                            break;
+                        default:
+                            var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(itemId);
+                            itemDescription = dataOrErrorItem.DisplayName;
+                            break;
+                    }
+                    if (itemId != CommunityCenter_Money)
+                    {
+                        if (itemQuantityNeeded > 1)
+                        {
+                            itemDescription += $" x{itemQuantityNeeded}";
+                        }
+                        switch (minimumQuality)
+                        {
+                            case 1:
+                                itemDescription += " (silver)";
+                                break;
+                            case 2:
+                                itemDescription += " (gold)";
+                                break;
+                            case 3:
+                            case 4:
+                                itemDescription += " (iridium)";
+                                break;
+                        }
+                    }
+                    bundleItems[bundleId].Add(itemDescription);
+                }
+            }
+
+            foreach (var keyValuePair in bundleItems.OrderBy(keyValuePair => keyValuePair.Key))
+            {
+                var bundleId = keyValuePair.Key;
+                if (bundleItems[bundleId].Count == 0)
+                {
+                    continue;
+                }
+                var areaName = bundleAreas[bundleId];
+                var bundleName = bundleNames[bundleId];
+                var bundleSlotPrefix = "";
+                if (bundleSlotsNeeded[bundleId] != 0 && bundleSlotsNeeded[bundleId] != bundleOptions[bundleId])
+                {
+                    var numberOptionsAlreadyDonated = bundleOptions[bundleId] - bundleItems[bundleId].Count;
+                    var bundleSlotsShort = bundleSlotsNeeded[bundleId] - numberOptionsAlreadyDonated;
+                    bundleSlotPrefix = $"{bundleSlotsShort} of ";
+                }
+                var bundleItemList = String.Join(", ", bundleItems[bundleId]);
+                linesToDisplay.Add($"* {areaName} - {bundleName} Bundle - {bundleSlotPrefix}{bundleItemList}{LineBreak}");
+            }
+
+            if (linesToDisplay.Count == 0)
+            {
+                linesToDisplay.Add("Full Shipment is complete!");
+            }
+
+            ShowLines(linesToDisplay);
         }
 
         public static void ShowFullShipmentList(Farmer who)
@@ -143,8 +293,8 @@ namespace WhatDoYouWant
 
             // adapted from base game logic to calculate cooking %
             //   TODO sort options: mod items first, last
-            var dictionary = DataLoader.CookingRecipes(Game1.content);
-            foreach (var keyValuePair in dictionary)
+            var cookingDictionary = DataLoader.CookingRecipes(Game1.content);
+            foreach (var keyValuePair in cookingDictionary)
             {
                 // keyValuePair = e.g. <"Fried Egg", "-5 1/10 10/194/default">
                 // value = list of ingredient IDs and quantities / unused / item ID of cooked dish / unlock conditions
@@ -181,8 +331,8 @@ namespace WhatDoYouWant
 
             // adapted from base game logic to calculate crafting %
             //   TODO sort options: mod items first, last
-            var dictionary = DataLoader.CraftingRecipes(Game1.content);
-            foreach (var keyValuePair in dictionary)
+            var craftingDictionary = DataLoader.CraftingRecipes(Game1.content);
+            foreach (var keyValuePair in craftingDictionary)
             {
                 // keyValuePair = e.g. <"Wood Fence", "388 2/Field/322/false/l 0">
                 // value = list of ingredient IDs and quantities / unused / item ID of crafted item / big craftable? / unlock conditions
@@ -286,7 +436,7 @@ namespace WhatDoYouWant
             ShowLines(linesToDisplay);
         }
 
-        public static void ShowMuseumList(Farmer who)
+        public static void ShowMuseumList()
         {
             var linesToDisplay = new List<string>();
 
