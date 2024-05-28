@@ -1,4 +1,5 @@
-﻿using Netcode;
+﻿using Microsoft.Xna.Framework.Graphics.PackedVector;
+using Netcode;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
@@ -8,8 +9,12 @@ using StardewValley.Extensions;
 using StardewValley.GameData.Crops;
 using StardewValley.GameData.Objects;
 using StardewValley.GameData.Shops;
+using StardewValley.ItemTypeDefinitions;
+using StardewValley.Locations;
+using StardewValley.Objects;
 using StardewValley.TokenizableStrings;
 using System;
+using System.Collections.Generic;
 
 namespace WhatDoYouWant
 {
@@ -35,10 +40,10 @@ namespace WhatDoYouWant
 
         public override void Entry(IModHelper helper)
         {
-            Helper.Events.Input.ButtonsChanged += (_sender, _e) => buttonsChanged(_sender, _e);
+            Helper.Events.Input.ButtonsChanged += (_sender, _e) => ButtonsChanged(_sender, _e);
         }
 
-        private void buttonsChanged(object? _sender, ButtonsChangedEventArgs _e)
+        private void ButtonsChanged(object? _sender, ButtonsChangedEventArgs _e)
         {
             var key = KeybindList.Parse("F2"); // TODO make this a mod option, changeable via GMCM
             if (!key.JustPressed())
@@ -46,7 +51,7 @@ namespace WhatDoYouWant
                 return;
             }
 
-            var responseList = new List<Response>();
+            List<Response> responseList = new();
             responseList.Add(new Response(responseKey: ResponseToken_CommunityCenter, responseText: "Community Center"));
             responseList.Add(new Response(responseKey: ResponseToken_Shipping, responseText: "Full Shipment"));
             responseList.Add(new Response(responseKey: ResponseToken_Cooking, responseText: "Gourmet Chef"));
@@ -58,30 +63,32 @@ namespace WhatDoYouWant
             Game1.currentLocation.createQuestionDialogue(
               question: "Show items still needed for...",
               answerChoices: responseList.ToArray(),
-              afterDialogueBehavior: new GameLocation.afterQuestionBehavior(this.gotResponse)
+              afterDialogueBehavior: new GameLocation.afterQuestionBehavior(this.GotResponse)
             );
         }
 
-        public virtual void gotResponse(Farmer who, string answer)
+        public virtual void GotResponse(Farmer who, string answer)
         {
             switch (answer)
             {
                 // TODO CommunityCenter
                 case ResponseToken_Shipping:
-                    showFullShipmentList(who: who, answer: answer);
+                    ShowFullShipmentList(who);
                     break;
                 case ResponseToken_Cooking:
-                    showCookingList(who: who, answer: answer);
+                    ShowCookingList(who);
                     break;
                 case ResponseToken_Crafting:
-                    showCraftingList(who: who, answer: answer);
+                    ShowCraftingList(who);
                     break;
                 case ResponseToken_Fishing:
-                    showFishingList(who: who, answer: answer);
+                    ShowFishingList(who);
                     break;
-                // TODO Museum
+                case ResponseToken_Museum:
+                    ShowMuseumList(who);
+                    break;
                 case ResponseToken_Polyculture:
-                    ShowPolycultureList(who: who, answer: answer);
+                    ShowPolycultureList();
                     break;
                 case ResponseToken_Cancel:
                     break;
@@ -91,7 +98,7 @@ namespace WhatDoYouWant
             }
         }
 
-        public void showFullShipmentList(Farmer who, string answer)
+        public static void ShowFullShipmentList(Farmer who)
         {
             var linesToDisplay = new List<string>();
 
@@ -127,10 +134,10 @@ namespace WhatDoYouWant
                 linesToDisplay.Add("Full Shipment is complete!");
             }
 
-            showLines(linesToDisplay);
+            ShowLines(linesToDisplay);
         }
 
-        public void showCookingList(Farmer who, string answer)
+        public static void ShowCookingList(Farmer who)
         {
             var linesToDisplay = new List<string>();
 
@@ -165,10 +172,10 @@ namespace WhatDoYouWant
                 linesToDisplay.Add("Gourmet Chef is complete!");
             }
 
-            showLines(linesToDisplay);
+            ShowLines(linesToDisplay);
         }
 
-        public void showCraftingList(Farmer who, string answer)
+        public static void ShowCraftingList(Farmer who)
         {
             var linesToDisplay = new List<string>();
 
@@ -185,8 +192,7 @@ namespace WhatDoYouWant
                 {
                     continue;
                 }
-                int numberCrafted;
-                who.craftingRecipes.TryGetValue(key1, out numberCrafted);
+                who.craftingRecipes.TryGetValue(key1, out int numberCrafted);
                 if (numberCrafted > 0)
                 {
                     continue;
@@ -208,7 +214,7 @@ namespace WhatDoYouWant
                 linesToDisplay.Add("Craft Master is complete!");
             }
 
-            showLines(linesToDisplay);
+            ShowLines(linesToDisplay);
         }
 
         private static string GetIngredientText(string ingredients)
@@ -248,23 +254,7 @@ namespace WhatDoYouWant
             return String.Join(", ", ingredientTextList);
         }
 
-        /* TODO museum
-           TODO sort options: alpha, type (mineral / artifact); mod items first, last
-            foreach (ParsedItemData parsedItemData in ItemRegistry.GetObjectTypeDefinition().GetAllData())
-            {
-              string qualifiedItemId = parsedItemData.QualifiedItemId;
-              if (LibraryMuseum.IsItemSuitableForDonation(qualifiedItemId, checkDonatedItems: true))
-              {
-                HashSet<string> baseContextTags = ItemContextTagManager.GetBaseContextTags(itemId);
-                baseContextTags.Contains("museum_donatable")
-                baseContextTags.Contains("item_type_minerals")
-                baseContextTags.Contains("item_type_arch")
-                  what if an item has both minerals and arch? neither minerals nor arch?
-              }
-            }
-         */
-
-        public void showFishingList(Farmer who, string answer)
+        public static void ShowFishingList(Farmer who)
         {
             var linesToDisplay = new List<string>();
 
@@ -293,10 +283,44 @@ namespace WhatDoYouWant
                 linesToDisplay.Add("Master Angler is complete!");
             }
 
-            showLines(linesToDisplay);
+            ShowLines(linesToDisplay);
         }
 
-        public void ShowPolycultureList(Farmer who, string answer)
+        public static void ShowMuseumList(Farmer who)
+        {
+            var linesToDisplay = new List<string>();
+
+            // adapted from base game logic to award A Complete Collection achievement
+            //   TODO sort options: alpha, type(mineral / artifact); mod items first, last
+            foreach (var parsedItemData in ItemRegistry.GetObjectTypeDefinition().GetAllData())
+            {
+                var qualifiedItemId = parsedItemData.QualifiedItemId;
+                if (!LibraryMuseum.IsItemSuitableForDonation(qualifiedItemId, checkDonatedItems: true))
+                {
+                    continue;
+                }
+                var baseContextTags = ItemContextTagManager.GetBaseContextTags(qualifiedItemId);
+                if (
+                    !baseContextTags.Contains("museum_donatable")
+                        && !baseContextTags.Contains("item_type_minerals")
+                        && !baseContextTags.Contains("item_type_arch")
+                )
+                {
+                    continue;
+                }
+                var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(qualifiedItemId);
+                linesToDisplay.Add($"* {dataOrErrorItem.DisplayName}{LineBreak}");
+            }
+
+            if (linesToDisplay.Count == 0)
+            {
+                linesToDisplay.Add("A Complete Collection is complete!");
+            }
+
+            ShowLines(linesToDisplay);
+        }
+
+        public static void ShowPolycultureList()
         {
             var linesToDisplay = new List<string>();
 
@@ -308,8 +332,7 @@ namespace WhatDoYouWant
                 {
                     continue;
                 }
-                int numberShipped;
-                Game1.player.basicShipped.TryGetValue(cropData.HarvestItemId, out numberShipped);
+                Game1.player.basicShipped.TryGetValue(cropData.HarvestItemId, out int numberShipped);
                 if (numberShipped >= NumberShippedForPolyculture)
                 {
                     continue;
@@ -324,10 +347,10 @@ namespace WhatDoYouWant
                 linesToDisplay.Add("Polyculture is complete!");
             }
 
-            showLines(linesToDisplay);
+            ShowLines(linesToDisplay);
         }
 
-        private void showLines(List<string> linesToDisplay)
+        private static void ShowLines(List<string> linesToDisplay)
         {
             // adapted from base game logic to display Perfection Tracker output
             //   TODO reduce height a bit more, replace "..." with "Page N of M" and change "Count - 1" to "Count"
