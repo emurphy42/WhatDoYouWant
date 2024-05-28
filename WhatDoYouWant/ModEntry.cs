@@ -30,6 +30,8 @@ namespace WhatDoYouWant
         private const string CookingIngredient_AnyEgg = "-5";
         private const string CookingIngredient_AnyFish = "-4";
 
+        // TODO i18n
+
         public override void Entry(IModHelper helper)
         {
             Helper.Events.Input.ButtonsChanged += (_sender, _e) => buttonsChanged(_sender, _e);
@@ -37,7 +39,7 @@ namespace WhatDoYouWant
 
         private void buttonsChanged(object? _sender, ButtonsChangedEventArgs _e)
         {
-            var key = KeybindList.Parse("F2");
+            var key = KeybindList.Parse("F2"); // TODO make this a mod option, changeable via GMCM
             if (!key.JustPressed())
             {
                 return;
@@ -70,7 +72,9 @@ namespace WhatDoYouWant
                 case ResponseToken_Cooking:
                     showCookingList(who: who, answer: answer);
                     break;
-                // TODO Utility.getCraftedRecipesPercent
+                case ResponseToken_Crafting:
+                    showCraftingList(who: who, answer: answer);
+                    break;
                 // TODO Utility.getFishCaughtPercent
                 // TODO Museum
                 case ResponseToken_Polyculture:
@@ -135,7 +139,7 @@ namespace WhatDoYouWant
                 // keyValuePair = e.g. <"Fried Egg", "-5 1/10 10/194/default">
                 // value = list of ingredient IDs and quantities / unused / item ID of cooked dish / unlock conditions
                 var key1 = keyValuePair.Key;
-                string key2 = ArgUtility.SplitBySpaceAndGet(ArgUtility.Get(keyValuePair.Value.Split('/'), 2), 0);
+                var key2 = ArgUtility.SplitBySpaceAndGet(ArgUtility.Get(keyValuePair.Value.Split('/'), 2), 0);
                 var recipeLearned = who.cookingRecipes.ContainsKey(key1);
                 var recipeCooked = who.recipesCooked.ContainsKey(key2);
                 if (recipeLearned && recipeCooked)
@@ -156,6 +160,49 @@ namespace WhatDoYouWant
             if (linesToDisplay.Count == 0)
             {
                 linesToDisplay.Add("Gourmet Chef is complete!");
+            }
+
+            showLines(linesToDisplay);
+        }
+
+        public void showCraftingList(Farmer who, string answer)
+        {
+            var linesToDisplay = new List<string>();
+
+            // adapted from base game logic to calculate crafting %
+            //   TODO sort options: mod items first, last
+            var dictionary = DataLoader.CraftingRecipes(Game1.content);
+            foreach (var keyValuePair in dictionary)
+            {
+                // keyValuePair = e.g. <"Wood Fence", "388 2/Field/322/false/l 0">
+                // value = list of ingredient IDs and quantities / unused / item ID of crafted item / big craftable? / unlock conditions
+                var key1 = keyValuePair.Key;
+                var key2 = ArgUtility.SplitBySpaceAndGet(ArgUtility.Get(keyValuePair.Value.Split('/'), 2), 0);
+                if (key1 == "Wedding Ring")
+                {
+                    continue;
+                }
+                int numberCrafted;
+                who.craftingRecipes.TryGetValue(key1, out numberCrafted);
+                if (numberCrafted > 0)
+                {
+                    continue;
+                }
+
+                // TODO parse unlock conditions
+
+                var ingredients = ArgUtility.Get(keyValuePair.Value.Split('/'), 0);
+                var ingredientText = GetIngredientText(ingredients);
+
+                var isBigCraftable = ArgUtility.SplitBySpaceAndGet(ArgUtility.Get(keyValuePair.Value.Split('/'), 3), 0);
+                var itemPrefix = (isBigCraftable == "true") ? "(BC)" : "(O)";
+                var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(itemPrefix + key2);
+                linesToDisplay.Add($"* {dataOrErrorItem.DisplayName} - {ingredientText}{LineBreak}");
+            }
+
+            if (linesToDisplay.Count == 0)
+            {
+                linesToDisplay.Add("Craft Master is complete!");
             }
 
             showLines(linesToDisplay);
