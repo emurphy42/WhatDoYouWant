@@ -6,6 +6,7 @@ using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Extensions;
 using StardewValley.GameData.Crops;
+using StardewValley.GameData.Objects;
 using StardewValley.GameData.Shops;
 using StardewValley.TokenizableStrings;
 using System;
@@ -75,7 +76,9 @@ namespace WhatDoYouWant
                 case ResponseToken_Crafting:
                     showCraftingList(who: who, answer: answer);
                     break;
-                // TODO Utility.getFishCaughtPercent
+                case ResponseToken_Fishing:
+                    showFishingList(who: who, answer: answer);
+                    break;
                 // TODO Museum
                 case ResponseToken_Polyculture:
                     ShowPolycultureList(who: who, answer: answer);
@@ -261,6 +264,38 @@ namespace WhatDoYouWant
             }
          */
 
+        public void showFishingList(Farmer who, string answer)
+        {
+            var linesToDisplay = new List<string>();
+
+            // adapted from base game logic to calculate fishing %
+            //   TODO sort options: alpha, season (starting with current); mod items first, last
+            foreach (var parsedItemData in ItemRegistry.GetObjectTypeDefinition().GetAllData())
+            {
+                if (parsedItemData.ObjectType != "Fish")
+                {
+                    continue;
+                }
+                if (parsedItemData.RawData is ObjectData rawData && rawData.ExcludeFromFishingCollection)
+                {
+                    continue;
+                }
+                if (who.fishCaught.ContainsKey(parsedItemData.QualifiedItemId))
+                {
+                    continue;
+                }
+                var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(parsedItemData.QualifiedItemId);
+                linesToDisplay.Add($"* {dataOrErrorItem.DisplayName}{LineBreak}");
+            }
+
+            if (linesToDisplay.Count == 0)
+            {
+                linesToDisplay.Add("Master Angler is complete!");
+            }
+
+            showLines(linesToDisplay);
+        }
+
         public void ShowPolycultureList(Farmer who, string answer)
         {
             var linesToDisplay = new List<string>();
@@ -279,8 +314,9 @@ namespace WhatDoYouWant
                 {
                     continue;
                 }
+                var numberNeeded = NumberShippedForPolyculture - numberShipped;
                 var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(cropData.HarvestItemId);
-                linesToDisplay.Add($"* {dataOrErrorItem.DisplayName} - ship {NumberShippedForPolyculture - numberShipped}{LineBreak}");
+                linesToDisplay.Add($"* {dataOrErrorItem.DisplayName} - ship {numberNeeded}{LineBreak}");
             }
 
             if (linesToDisplay.Count == 0)
