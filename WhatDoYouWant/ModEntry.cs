@@ -1,10 +1,12 @@
-﻿using StardewModdingAPI;
+﻿using Netcode;
+using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Extensions;
 using StardewValley.GameData.Crops;
+using StardewValley.GameData.Shops;
 using StardewValley.TokenizableStrings;
 using System;
 
@@ -23,6 +25,10 @@ namespace WhatDoYouWant
         private const string ResponseToken_Museum = "Museum";
         private const string ResponseToken_Polyculture = "Polyculture";
         private const string ResponseToken_Cancel = "Cancel";
+
+        private const string CookingIngredient_AnyMilk = "-6";
+        private const string CookingIngredient_AnyEgg = "-5";
+        private const string CookingIngredient_AnyFish = "-4";
 
         public override void Entry(IModHelper helper)
         {
@@ -61,7 +67,9 @@ namespace WhatDoYouWant
                 case ResponseToken_Shipping:
                     showFullShipmentList(who: who, answer: answer);
                     break;
-                // TODO Utility.getCookedRecipesPercent
+                case ResponseToken_Cooking:
+                    showCookingList(who: who, answer: answer);
+                    break;
                 // TODO Utility.getCraftedRecipesPercent
                 // TODO Utility.getFishCaughtPercent
                 // TODO Museum
@@ -102,7 +110,7 @@ namespace WhatDoYouWant
                         {
                             continue;
                         }
-                        linesToDisplay.Add($"{parsedItemData.DisplayName}{LineBreak}");
+                        linesToDisplay.Add($"* {parsedItemData.DisplayName}{LineBreak}");
                         break;
                 }
             }
@@ -113,6 +121,81 @@ namespace WhatDoYouWant
             }
 
             showLines(linesToDisplay);
+        }
+
+        public void showCookingList(Farmer who, string answer)
+        {
+            var linesToDisplay = new List<string>();
+
+            // adapted from base game logic to calculate cooking %
+            //   TODO sort options: mod items first, last
+            var dictionary = DataLoader.CookingRecipes(Game1.content);
+            foreach (var keyValuePair in dictionary)
+            {
+                // keyValuePair = e.g. <"Fried Egg", "-5 1/10 10/194/default">
+                // value = list of ingredient IDs and quantities / unused / item ID of cooked dish / unlock conditions
+                var key1 = keyValuePair.Key;
+                string key2 = ArgUtility.SplitBySpaceAndGet(ArgUtility.Get(keyValuePair.Value.Split('/'), 2), 0);
+                var recipeLearned = who.cookingRecipes.ContainsKey(key1);
+                var recipeCooked = who.recipesCooked.ContainsKey(key2);
+                if (recipeLearned && recipeCooked)
+                {
+                    continue;
+                }
+
+                // TODO parse unlock conditions
+                var learnedPrefix = recipeLearned ? "" : "not yet learned - ";
+
+                var ingredients = ArgUtility.Get(keyValuePair.Value.Split('/'), 0);
+                var ingredientText = GetIngredientText(ingredients);
+
+                var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(key2);
+                linesToDisplay.Add($"* {dataOrErrorItem.DisplayName} - {learnedPrefix}{ingredientText}{LineBreak}");
+            }
+
+            if (linesToDisplay.Count == 0)
+            {
+                linesToDisplay.Add("Gourmet Chef is complete!");
+            }
+
+            showLines(linesToDisplay);
+        }
+
+        private static string GetIngredientText(string ingredients)
+        {
+            var ingredientList = ingredients.Trim().Split(' ');
+            var ingredientTextList = new List<string>();
+            for (var index = 0; index < ingredientList.Length; index += 2)
+            {
+                var ingredientId = ingredientList[index];
+                string ingredientName;
+                switch (ingredientId)
+                {
+                    case CookingIngredient_AnyMilk:
+                        ingredientName = "Milk (any)";
+                        break;
+                    case CookingIngredient_AnyEgg:
+                        ingredientName = "Egg (any)";
+                        break;
+                    case CookingIngredient_AnyFish:
+                        ingredientName = "Fish (any)";
+                        break;
+                    default:
+                        var ingredientDataOrErrorItem = ItemRegistry.GetDataOrErrorItem(ingredientId);
+                        ingredientName = ingredientDataOrErrorItem.DisplayName;
+                        break;
+                }
+
+                var ingredientQuantity = ingredientList[index + 1];
+                if (ingredientQuantity != "1")
+                {
+                    ingredientName += $" x{ingredientQuantity}";
+                }
+
+                ingredientTextList.Add(ingredientName);
+            }
+
+            return String.Join(", ", ingredientTextList);
         }
 
         /* TODO museum
@@ -150,7 +233,7 @@ namespace WhatDoYouWant
                     continue;
                 }
                 var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(cropData.HarvestItemId);
-                linesToDisplay.Add($"{dataOrErrorItem.DisplayName} - ship {NumberShippedForPolyculture - numberShipped}{LineBreak}");
+                linesToDisplay.Add($"* {dataOrErrorItem.DisplayName} - ship {NumberShippedForPolyculture - numberShipped}{LineBreak}");
             }
 
             if (linesToDisplay.Count == 0)
