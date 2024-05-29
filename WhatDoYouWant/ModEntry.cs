@@ -16,6 +16,9 @@ using StardewValley.Objects;
 using StardewValley.TokenizableStrings;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Security.AccessControl;
 
 namespace WhatDoYouWant
 {
@@ -25,13 +28,25 @@ namespace WhatDoYouWant
         private const int NumberShippedForPolyculture = 15;
 
         private const string ResponseToken_CommunityCenter = "CommunityCenter";
+        private const string ResponseToken_Walnuts = "Walnuts";
         private const string ResponseToken_Shipping = "Shipping";
         private const string ResponseToken_Cooking = "Cooking";
         private const string ResponseToken_Crafting = "Crafting";
         private const string ResponseToken_Fishing = "Fishing";
         private const string ResponseToken_Museum = "Museum";
+        private const string ResponseToken_Stardrops = "Stardrops";
         private const string ResponseToken_Polyculture = "Polyculture";
         private const string ResponseToken_Cancel = "Cancel";
+
+        private const string Title_CommunityCenter = "Community Center";
+        private const string Title_Walnuts = "Golden Walnuts";
+        private const string Title_Shipping = "Full Shipment";
+        private const string Title_Cooking = "Gourmet Chef";
+        private const string Title_Crafting = "Craft Master";
+        private const string Title_Fishing = "Master Angler";
+        private const string Title_Museum = "A Complete Collection";
+        private const string Title_Stardrops = "Stardrops";
+        private const string Title_Polyculture = "Polyculture";
 
         private const string CommunityCenter_Money = "-1";
 
@@ -39,7 +54,97 @@ namespace WhatDoYouWant
         private const string CookingIngredient_AnyEgg = "-5";
         private const string CookingIngredient_AnyFish = "-4";
 
-        // TODO i18n
+        private const string WalnutType_MissingTheseNuts = "MissingTheseNuts";
+        private const string WalnutType_MissingLimitedNutDrops = "MissingLimitedNutDrops";
+        private const string WalnutType_GoldenCoconutCracked = "GoldenCoconutCracked";
+        private const string WalnutType_GotBirdieReward = "GotBirdieReward";
+
+        private static readonly List<List<string>> WalnutList = new()
+        {
+            // base game function name, token passed to it, hint text (Strings\\Locations:NutHint_*) or "none", [number of walnuts - 1 if not specified]
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_13_33", "VolcanoLava" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_5_30", "VolcanoLava" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_19_39", "BuriedArch" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_4_42", "NorthHidden" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_45_38", "NorthHidden" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_47_40", "NorthHidden" },
+            new List<string>() { WalnutType_MissingTheseNuts, "IslandLeftPlantRestored", "Arch" },
+            new List<string>() { WalnutType_MissingTheseNuts, "IslandRightPlantRestored", "Arch" },
+            new List<string>() { WalnutType_MissingTheseNuts, "IslandBatRestored", "Arch" },
+            new List<string>() { WalnutType_MissingTheseNuts, "IslandFrogRestored", "Arch" },
+            new List<string>() { WalnutType_MissingTheseNuts, "IslandCenterSkeletonRestored", "Arch", "6" },
+            new List<string>() { WalnutType_MissingTheseNuts, "IslandSnakeRestored", "Arch", "3" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandNorth_19_13", "NorthBuried" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandNorth_57_79", "NorthBuried" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandNorth_54_21", "NorthBuried" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandNorth_42_77", "NorthBuried" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandNorth_62_54", "NorthBuried" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandNorth_26_81", "NorthBuried" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_20_26", "NorthHidden" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_9_84", "NorthHidden" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_56_27", "NorthHidden" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandSouth_31_5", "NorthHidden" },
+            new List<string>() { WalnutType_MissingTheseNuts, "TreeNut", "HutTree" },
+            new List<string>() { WalnutType_MissingTheseNuts, "IslandWestCavePuzzle", "WestHidden", "3" },
+            new List<string>() { WalnutType_MissingTheseNuts, "SandDuggy", "WestHidden" },
+            new List<string>() { WalnutType_MissingLimitedNutDrops, "TigerSlimeNut", "TigerSlime" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandWest_21_81", "WestBuried" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandWest_62_76", "WestBuried" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandWest_39_24", "WestBuried" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandWest_88_14", "WestBuried" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandWest_43_74", "WestBuried" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandWest_30_75", "WestBuried" },
+            new List<string>() { WalnutType_MissingLimitedNutDrops, "MusselStone", "MusselStone", "5" },
+            new List<string>() { WalnutType_MissingLimitedNutDrops, "IslandFarming", "IslandFarming", "5" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandWest_104_3", "WestHidden" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandWest_31_24", "WestHidden" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandWest_38_56", "WestHidden" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandWest_75_29", "WestHidden" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandWest_64_30", "WestHidden" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandWest_54_18", "WestHidden" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandWest_25_30", "WestHidden" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandWest_15_3", "WestHidden" },
+            new List<string>() { WalnutType_MissingLimitedNutDrops, "IslandFishing", "IslandFishing", "5" },
+            new List<string>() { WalnutType_MissingLimitedNutDrops, "VolcanoNormalChest", "VolcanoTreasure" },
+            new List<string>() { WalnutType_MissingLimitedNutDrops, "VolcanoRareChest", "VolcanoTreasure" },
+            new List<string>() { WalnutType_MissingLimitedNutDrops, "VolcanoBarrel", "VolcanoBarrel", "5" },
+            new List<string>() { WalnutType_MissingLimitedNutDrops, "VolcanoMining", "VolcanoMining", "5" },
+            new List<string>() { WalnutType_MissingLimitedNutDrops, "VolcanoMonsterDrop", "VolcanoMonsters", "5" },
+            new List<string>() { WalnutType_MissingLimitedNutDrops, "Island_N_BuriedTreasureNut", "Journal" },
+            new List<string>() { WalnutType_MissingLimitedNutDrops, "Island_W_BuriedTreasureNut", "Journal" },
+            new List<string>() { WalnutType_MissingLimitedNutDrops, "Island_W_BuriedTreasureNut2", "Journal" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Mermaid", "Journal", "5" },
+            new List<string>() { WalnutType_MissingTheseNuts, "TreeNutShot", "Journal" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandSouthEastCave_36_26", "SouthEastBuried" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandSouthEast_25_17", "SouthEastBuried" },
+            new List<string>() { WalnutType_MissingTheseNuts, "StardropPool", "StardropPool" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_Caldera_28_36", "Caldera" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_Caldera_9_34", "Caldera" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_CaptainRoom_2_4", "WestHidden" }, // shipwreck
+            new List<string>() { WalnutType_MissingTheseNuts, "BananaShrine", "none", "3" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandEast_17_37", "none" }, // out in the open near Leo's hut
+            new List<string>() { WalnutType_MissingLimitedNutDrops, "Darts", "none", "3" },
+            new List<string>() { WalnutType_MissingTheseNuts, "IslandGourmand1", "Gourmand", "5" },
+            new List<string>() { WalnutType_MissingTheseNuts, "IslandGourmand2", "Gourmand", "5" },
+            new List<string>() { WalnutType_MissingTheseNuts, "IslandGourmand3", "Gourmand", "5" },
+            new List<string>() { WalnutType_MissingTheseNuts, "IslandShrinePuzzle", "IslandShrine", "5" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandShrine_23_34", "none" },
+            new List<string>() { WalnutType_GoldenCoconutCracked, "", "GoldenCoconut" },
+            new List<string>() { WalnutType_GotBirdieReward, "", "none", "5" } // Pirate's Wife
+        };
+
+        private static readonly Dictionary<string, string> StardropList = new()
+        {
+            { "CF_Fair", "Purchased at Stardew Valley Fair for 2,000 star tokens" },
+            { "CF_Mines", "Found in chest on mine level 100" },
+            { "CF_Spouse", "Given by NPC spouse at 12.5 hearts" },
+            { "CF_Sewer", "Purchased from Krobus in Sewers for 20,000g" },
+            { "CF_Statue", "Received from Old Master Cannoli in Secret Woods" },
+            { "CF_Fish", "Mailed by Willy after Master Angler achievement" },
+            { "museumComplete", "Reward for completing museum collection" }
+        };
+
+        // TODO https://stardewcommunitywiki.com/Modding:Modder_Guide/APIs/Translation
 
         public override void Entry(IModHelper helper)
         {
@@ -48,21 +153,30 @@ namespace WhatDoYouWant
 
         private void ButtonsChanged(object? _sender, ButtonsChangedEventArgs _e)
         {
+            if (!Game1.hasStartedDay)
+            {
+                return;
+            }
+
             var key = KeybindList.Parse("F2"); // TODO make this a mod option, changeable via GMCM
             if (!key.JustPressed())
             {
                 return;
             }
 
-            // TODO option to omit things already completed (check mail / achievement data)
+            // TODO omit things already completed or unavailable (check mail / achievement data)
+            //   * omit CC if already completed or bought Joja membership
+            //   * omit walnuts if island not yet unlocked
             List<Response> responseList = new();
-            responseList.Add(new Response(responseKey: ResponseToken_CommunityCenter, responseText: "Community Center"));
-            responseList.Add(new Response(responseKey: ResponseToken_Shipping, responseText: "Full Shipment"));
-            responseList.Add(new Response(responseKey: ResponseToken_Cooking, responseText: "Gourmet Chef"));
-            responseList.Add(new Response(responseKey: ResponseToken_Crafting, responseText: "Craft Master"));
-            responseList.Add(new Response(responseKey: ResponseToken_Fishing, responseText: "Master Angler"));
-            responseList.Add(new Response(responseKey: ResponseToken_Museum, responseText: "A Complete Collection"));
-            responseList.Add(new Response(responseKey: ResponseToken_Polyculture, responseText: "Polyculture"));
+            responseList.Add(new Response(responseKey: ResponseToken_CommunityCenter, responseText: Title_CommunityCenter));
+            responseList.Add(new Response(responseKey: ResponseToken_Walnuts, responseText: Title_Walnuts));
+            responseList.Add(new Response(responseKey: ResponseToken_Shipping, responseText: Title_Shipping));
+            responseList.Add(new Response(responseKey: ResponseToken_Cooking, responseText: Title_Cooking));
+            responseList.Add(new Response(responseKey: ResponseToken_Crafting, responseText: Title_Crafting));
+            responseList.Add(new Response(responseKey: ResponseToken_Fishing, responseText: Title_Fishing));
+            responseList.Add(new Response(responseKey: ResponseToken_Museum, responseText: Title_Museum));
+            responseList.Add(new Response(responseKey: ResponseToken_Stardrops, responseText: Title_Stardrops));
+            responseList.Add(new Response(responseKey: ResponseToken_Polyculture, responseText: Title_Polyculture));
             responseList.Add(new Response(responseKey: ResponseToken_Cancel, responseText: "(Cancel)"));
             Game1.currentLocation.createQuestionDialogue(
               question: "Show items still needed for...",
@@ -78,6 +192,9 @@ namespace WhatDoYouWant
                 case ResponseToken_CommunityCenter:
                     ShowCommunityCenterList();
                     break;
+                case ResponseToken_Walnuts:
+                    ShowWalnutsList();
+                    break;
                 case ResponseToken_Shipping:
                     ShowFullShipmentList(who);
                     break;
@@ -92,6 +209,9 @@ namespace WhatDoYouWant
                     break;
                 case ResponseToken_Museum:
                     ShowMuseumList();
+                    break;
+                case ResponseToken_Stardrops:
+                    ShowStardropList(who);
                     break;
                 case ResponseToken_Polyculture:
                     ShowPolycultureList();
@@ -110,8 +230,7 @@ namespace WhatDoYouWant
 
             if (Game1.player.mailReceived.Contains("ccIsComplete"))
             {
-                linesToDisplay.Add("Full Shipment is complete!");
-                ShowLines(linesToDisplay);
+                Game1.drawDialogueNoTyping($"{Title_CommunityCenter} is complete!");
                 return;
             }
 
@@ -132,10 +251,15 @@ namespace WhatDoYouWant
                 var keyArray = keyValuePair.Key.Split('/');
 
                 var areaName = keyArray[0];
-                if (!communityCenter.shouldNoteAppearInArea(CommunityCenter.getAreaNumberFromName(areaName)))
+                if (areaName == "Abandoned Joja Mart")
                 {
                     continue;
                 }
+                // TODO option to only include unlocked bundles
+                //if (!communityCenter.shouldNoteAppearInArea(CommunityCenter.getAreaNumberFromName(areaName)))
+                //{
+                //    continue;
+                //}
 
                 var bundleId = Convert.ToInt32(keyArray[1]);
                 if (!bundleDictionary.ContainsKey(bundleId))
@@ -242,13 +366,94 @@ namespace WhatDoYouWant
 
             if (linesToDisplay.Count == 0)
             {
-                linesToDisplay.Add("Full Shipment is complete!");
+                Game1.drawDialogueNoTyping($"{Title_CommunityCenter} is complete!");
+                return;
             }
 
-            ShowLines(linesToDisplay);
+            ShowLines(linesToDisplay, title: Title_CommunityCenter, longLinesExpected: true);
         }
 
-        public static void ShowFullShipmentList(Farmer who)
+        public void ShowWalnutsList()
+        {
+            var linesToDisplay = new List<string>();
+
+            // adapted from base game logic for hints in Leo's hut
+            //   TODO sort by area
+            //   TODO option to provide more detail (see Stardew Checker source)
+            var hintDictionary = new Dictionary<string, int>();
+            foreach (var walnut in WalnutList)
+            {
+                var walnutFunction = walnut[0];
+                var walnutToken = walnut[1];
+                var walnutHint = walnut[2];
+                var walnutNumberTotal = (walnut.Count >= 4) ? Convert.ToInt32(walnut[3]) : 1;
+
+                var walnutNumberMissing = 0;
+                switch (walnutFunction)
+                {
+                    case WalnutType_MissingTheseNuts:
+                        if (!Game1.player.team.collectedNutTracker.Contains(walnutToken))
+                        {
+                            walnutNumberMissing = walnutNumberTotal;
+                        }
+                        break;
+                    case WalnutType_MissingLimitedNutDrops:
+                        walnutNumberMissing = walnutNumberTotal - Math.Max(Game1.player.team.GetDroppedLimitedNutCount(walnutToken), 0);
+                        break;
+                    case WalnutType_GoldenCoconutCracked:
+                        if (!Game1.netWorldState.Value.GoldenCoconutCracked)
+                        {
+                            walnutNumberMissing = walnutNumberTotal;
+                        }
+                        break;
+                    case WalnutType_GotBirdieReward:
+                        if (!Game1.MasterPlayer.hasOrWillReceiveMail("gotBirdieReward"))
+                        {
+                            walnutNumberMissing = walnutNumberTotal;
+                        }
+                        break;
+                }
+
+                if (walnutNumberMissing > 0)
+                {
+                    if (!hintDictionary.ContainsKey(walnutHint)) {
+                        hintDictionary[walnutHint] = 0;
+                    }
+                    hintDictionary[walnutHint] += walnutNumberMissing;
+                }
+            }
+
+            foreach (var hint in hintDictionary)
+            {
+                string hintText;
+                if (hint.Key == "none")
+                {
+                    hintText = "Other";
+                } else
+                {
+                    hintText = Game1.content.LoadString($"Strings\\Locations:NutHint_{hint.Key}");
+                    if (hintText.StartsWith("{0} "))
+                    {
+                        hintText = hintText.Substring(4, 1).ToUpper() + hintText.Substring(5);
+                    }
+                }
+                if (hint.Value > 1)
+                {
+                    hintText += $" ({hint.Value})";
+                }
+                linesToDisplay.Add($"* {hintText}{LineBreak}");
+            }
+
+            if (linesToDisplay.Count == 0)
+            {
+                Game1.drawDialogueNoTyping($"{Title_Walnuts} are complete!");
+                return;
+            }
+
+            ShowLines(linesToDisplay, title: Title_Walnuts);
+        }
+
+        public void ShowFullShipmentList(Farmer who)
         {
             var linesToDisplay = new List<string>();
 
@@ -281,13 +486,14 @@ namespace WhatDoYouWant
 
             if (linesToDisplay.Count == 0)
             {
-                linesToDisplay.Add("Full Shipment is complete!");
+                Game1.drawDialogueNoTyping($"{Title_Shipping} is complete!");
+                return;
             }
 
-            ShowLines(linesToDisplay);
+            ShowLines(linesToDisplay, title: Title_Shipping);
         }
 
-        public static void ShowCookingList(Farmer who)
+        public void ShowCookingList(Farmer who)
         {
             var linesToDisplay = new List<string>();
 
@@ -319,13 +525,14 @@ namespace WhatDoYouWant
 
             if (linesToDisplay.Count == 0)
             {
-                linesToDisplay.Add("Gourmet Chef is complete!");
+                Game1.drawDialogueNoTyping($"{Title_Cooking} is complete!");
+                return;
             }
 
-            ShowLines(linesToDisplay);
+            ShowLines(linesToDisplay, title: Title_Cooking, longLinesExpected: true);
         }
 
-        public static void ShowCraftingList(Farmer who)
+        public void ShowCraftingList(Farmer who)
         {
             var linesToDisplay = new List<string>();
 
@@ -361,10 +568,11 @@ namespace WhatDoYouWant
 
             if (linesToDisplay.Count == 0)
             {
-                linesToDisplay.Add("Craft Master is complete!");
+                Game1.drawDialogueNoTyping($"{Title_Crafting} is complete!");
+                return;
             }
 
-            ShowLines(linesToDisplay);
+            ShowLines(linesToDisplay, title: Title_Crafting, longLinesExpected: true);
         }
 
         private static string GetIngredientText(string ingredients)
@@ -404,7 +612,7 @@ namespace WhatDoYouWant
             return String.Join(", ", ingredientTextList);
         }
 
-        public static void ShowFishingList(Farmer who)
+        public void ShowFishingList(Farmer who)
         {
             var linesToDisplay = new List<string>();
 
@@ -430,13 +638,14 @@ namespace WhatDoYouWant
 
             if (linesToDisplay.Count == 0)
             {
-                linesToDisplay.Add("Master Angler is complete!");
+                Game1.drawDialogueNoTyping($"{Title_Fishing} is complete!");
+                return;
             }
 
-            ShowLines(linesToDisplay);
+            ShowLines(linesToDisplay, title: Title_Fishing);
         }
 
-        public static void ShowMuseumList()
+        public void ShowMuseumList()
         {
             var linesToDisplay = new List<string>();
 
@@ -464,13 +673,41 @@ namespace WhatDoYouWant
 
             if (linesToDisplay.Count == 0)
             {
-                linesToDisplay.Add("A Complete Collection is complete!");
+                Game1.drawDialogueNoTyping($"{Title_Museum} is complete!");
+                return;
             }
 
-            ShowLines(linesToDisplay);
+            ShowLines(linesToDisplay, title: Title_Museum);
         }
 
-        public static void ShowPolycultureList()
+        public void ShowStardropList(Farmer who)
+        {
+            var linesToDisplay = new List<string>();
+
+            // adapted from base game logic for counting stardrops found
+            foreach (var stardrop in StardropList)
+            {
+                if (who.hasOrWillReceiveMail(stardrop.Key))
+                {
+                    continue;
+                }
+                if (stardrop.Key == "CF_Mines" && who.chestConsumedMineLevels.ContainsKey(100) && who.chestConsumedMineLevels[100])
+                {
+                    continue;
+                }
+                linesToDisplay.Add($"* {stardrop.Value}{LineBreak}");
+            }
+
+            if (linesToDisplay.Count == 0)
+            {
+                Game1.drawDialogueNoTyping($"{Title_Stardrops} are complete!");
+                return;
+            }
+
+            ShowLines(linesToDisplay, title: Title_Stardrops);
+        }
+
+        public void ShowPolycultureList()
         {
             var linesToDisplay = new List<string>();
 
@@ -494,24 +731,38 @@ namespace WhatDoYouWant
 
             if (linesToDisplay.Count == 0)
             {
-                linesToDisplay.Add("Polyculture is complete!");
+                Game1.drawDialogueNoTyping($"{Title_Polyculture} is complete!");
+                return;
             }
 
-            ShowLines(linesToDisplay);
+            ShowLines(linesToDisplay, title: Title_Polyculture);
         }
 
-        private static void ShowLines(List<string> linesToDisplay)
+        private void ShowLines(List<string> linesToDisplay, string? title = null, bool longLinesExpected = false)
         {
+            if (title != null)
+            {
+                Monitor.Log(title, LogLevel.Info);
+                foreach (var line in linesToDisplay)
+                {
+                    Monitor.Log(line.Replace(LineBreak, ""), LogLevel.Info);
+                }
+            }
+
             // adapted from base game logic to display Perfection Tracker output
-            //   TODO reduce height a bit more, replace "..." with "Page N of M" and change "Count - 1" to "Count"
             var sectionsOfHeight = SpriteText.getStringBrokenIntoSectionsOfHeight(
                 s: string.Concat(linesToDisplay),
                 width: 9999,
-                height: Game1.uiViewport.Height - 100
+                height: longLinesExpected
+                    ? Game1.uiViewport.Height / 2
+                    : Game1.uiViewport.Height - 100
             );
-            for (var index = 0; index < sectionsOfHeight.Count - 1; ++index)
+            if (sectionsOfHeight.Count > 1)
             {
-                sectionsOfHeight[index] += "...\n";
+                for (var index = 0; index < sectionsOfHeight.Count; ++index)
+                {
+                    sectionsOfHeight[index] += $"(part {index + 1} of {sectionsOfHeight.Count})\n";
+                }
             }
 
             Game1.drawDialogueNoTyping(sectionsOfHeight);
