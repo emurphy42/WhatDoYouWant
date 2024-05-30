@@ -22,6 +22,7 @@ namespace WhatDoYouWant
             // adapted from base game logic for counting stardrops found
             foreach (var stardrop in StardropList)
             {
+                // Do they already have it?
                 if (who.hasOrWillReceiveMail(stardrop))
                 {
                     continue;
@@ -30,6 +31,8 @@ namespace WhatDoYouWant
                 {
                     continue;
                 }
+
+                // Add it to the list
                 var stardropDescription = modInstance.Helper.Translation.Get($"Stardrop_{stardrop}");
                 linesToDisplay.Add($"* {stardropDescription}{ModEntry.LineBreak}");
             }

@@ -4,7 +4,6 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Extensions;
-using StardewValley.GameData.Crops;
 using StardewValley.GameData.Objects;
 using StardewValley.Locations;
 
@@ -13,7 +12,6 @@ namespace WhatDoYouWant
     public class ModEntry : Mod
     {
         public const string LineBreak = "^";
-        private const int NumberShippedForPolyculture = 15;
 
         private const string ResponseToken_CommunityCenter = "CommunityCenter";
         private const string ResponseToken_Walnuts = "Walnuts";
@@ -191,7 +189,7 @@ namespace WhatDoYouWant
                     Stardrops.ShowStardropList(modInstance: this, who: who);
                     break;
                 case ResponseToken_Polyculture:
-                    ShowPolycultureList();
+                    Polyculture.ShowPolycultureList(modInstance: this);
                     break;
                 case ResponseToken_Cancel:
                     break;
@@ -655,37 +653,6 @@ namespace WhatDoYouWant
             }
 
             ShowLines(linesToDisplay, title: Title_Museum);
-        }
-
-        public void ShowPolycultureList()
-        {
-            var linesToDisplay = new List<string>();
-
-            // adapted from base game logic to award Polyculure achievement
-            //   TODO sort options: alpha, season(s), number shipped; mod items first, last
-            foreach (CropData cropData in (IEnumerable<CropData>)Game1.cropData.Values)
-            {
-                if (!cropData.CountForPolyculture)
-                {
-                    continue;
-                }
-                Game1.player.basicShipped.TryGetValue(cropData.HarvestItemId, out int numberShipped);
-                if (numberShipped >= NumberShippedForPolyculture)
-                {
-                    continue;
-                }
-                var numberNeeded = NumberShippedForPolyculture - numberShipped;
-                var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(cropData.HarvestItemId);
-                linesToDisplay.Add($"* {dataOrErrorItem.DisplayName} - ship {numberNeeded}{LineBreak}");
-            }
-
-            if (linesToDisplay.Count == 0)
-            {
-                Game1.drawDialogueNoTyping($"{Title_Polyculture} is complete!");
-                return;
-            }
-
-            ShowLines(linesToDisplay, title: Title_Polyculture);
         }
 
         public void ShowLines(List<string> linesToDisplay, string? title = null, bool longLinesExpected = false)

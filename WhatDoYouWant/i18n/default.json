@@ -1,4 +1,6 @@
 {
+  // Stardrops
+
   "Stardrop_CF_Fair": "Purchased at Stardew Valley Fair for 2,000 star tokens",
   "Stardrop_CF_Mines": "Found in chest on mine level 100",
   "Stardrop_CF_Spouse": "Given by NPC spouse at 12.5 hearts",
@@ -7,5 +9,11 @@
   "Stardrop_CF_Fish": "Mailed by Willy after Master Angler achievement",
   "Stardrop_museumComplete": "Reward for completing museum collection",
 
-  "Stardrop_Complete": "{{title}} are complete!"
+  "Stardrop_Complete": "{{title}} are complete!",
+
+  // Polyculture
+
+  "Polyculture_Crop": "{{season}} - {{crop}} - ship {{number}}",
+
+  "Polyculture_Complete": "{{title}} is complete!"
 }
