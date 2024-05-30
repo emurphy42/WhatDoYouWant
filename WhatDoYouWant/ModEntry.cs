@@ -101,7 +101,7 @@ namespace WhatDoYouWant
                     Shipping.ShowShippingList(modInstance: this, who: who);
                     break;
                 case ResponseToken_Cooking:
-                    ShowCookingList(who);
+                    Cooking.ShowCookingList(modInstance: this, who: who);
                     break;
                 case ResponseToken_Crafting:
                     Crafting.ShowCraftingList(modInstance: this, who: who);
@@ -273,45 +273,6 @@ namespace WhatDoYouWant
             }
 
             ShowLines(linesToDisplay, title: Title_CommunityCenter, longLinesExpected: true);
-        }
-
-        public void ShowCookingList(Farmer who)
-        {
-            var linesToDisplay = new List<string>();
-
-            // adapted from base game logic to calculate cooking %
-            //   TODO sort options: mod items first, last
-            var cookingDictionary = DataLoader.CookingRecipes(Game1.content);
-            foreach (var keyValuePair in cookingDictionary)
-            {
-                // keyValuePair = e.g. <"Fried Egg", "-5 1/10 10/194/default">
-                // value = list of ingredient IDs and quantities / unused / item ID of cooked dish / unlock conditions
-                var key1 = keyValuePair.Key;
-                var key2 = ArgUtility.SplitBySpaceAndGet(ArgUtility.Get(keyValuePair.Value.Split('/'), 2), 0);
-                var recipeLearned = who.cookingRecipes.ContainsKey(key1);
-                var recipeCooked = who.recipesCooked.ContainsKey(key2);
-                if (recipeLearned && recipeCooked)
-                {
-                    continue;
-                }
-
-                // TODO parse unlock conditions
-                var learnedPrefix = recipeLearned ? "" : "not yet learned - ";
-
-                var ingredients = ArgUtility.Get(keyValuePair.Value.Split('/'), 0);
-                var ingredientText = GetIngredientText(ingredients);
-
-                var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(key2);
-                linesToDisplay.Add($"* {dataOrErrorItem.DisplayName} - {learnedPrefix}{ingredientText}{LineBreak}");
-            }
-
-            if (linesToDisplay.Count == 0)
-            {
-                Game1.drawDialogueNoTyping($"{Title_Cooking} is complete!");
-                return;
-            }
-
-            ShowLines(linesToDisplay, title: Title_Cooking, longLinesExpected: true);
         }
 
         public static string GetIngredientText(string ingredients)

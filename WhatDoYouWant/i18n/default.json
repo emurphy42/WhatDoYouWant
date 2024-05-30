@@ -7,6 +7,11 @@
 
   "Shipping_Complete": "{{title}} is complete!",
 
+  // Gourmet Chef
+
+  "Cooking_NotYetLearned": "not yet learned",
+  "Cooking_Complete": "{{title}} is complete!",
+
   // Craft Master
 
   "Crafting_Complete": "{{title}} is complete!",
