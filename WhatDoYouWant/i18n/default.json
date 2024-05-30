@@ -1,4 +1,12 @@
 {
+  // General
+
+  "Menu_Question": "Show items still needed for...",
+  "Menu_Cancel": "Cancel",
+  "Response_NotYetImplemented": "Not yet implemented",
+  "Response_Section": "part {{section}} of {{numberSections}}",
+  "Options_OpenMenuKey":  "Open menu key",
+
   // Community Center
 
   "CommunityCenter_Complete": "{{title}} is complete!",

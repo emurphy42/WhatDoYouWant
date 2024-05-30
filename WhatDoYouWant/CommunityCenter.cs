@@ -101,7 +101,7 @@ namespace WhatDoYouWant
                             break;
                         default:
                             var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(itemId);
-                            itemDescription = dataOrErrorItem.DisplayName;
+                            itemDescription = dataOrErrorItem.DisplayName; // TODO distinguish e.g. Large Egg (white) / Large Egg (brown), Smoked Fish (any)
                             break;
                     }
                     if (itemId != CommunityCenter_Money)

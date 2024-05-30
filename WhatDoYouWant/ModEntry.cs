@@ -1,4 +1,5 @@
-﻿using StardewModdingAPI;
+﻿using GenericModConfigMenu;
+using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
@@ -40,22 +41,46 @@ namespace WhatDoYouWant
             Season.Winter
         };
 
-        // TODO https://stardewcommunitywiki.com/Modding:Modder_Guide/APIs/Translation
+        private ModConfig Config = new();
 
         public override void Entry(IModHelper helper)
         {
+            Config = Helper.ReadConfig<ModConfig>();
+
+            Helper.Events.GameLoop.GameLaunched += (_sender, _e) => OnGameLaunched(_sender, _e);
             Helper.Events.Input.ButtonsChanged += (_sender, _e) => ButtonsChanged(_sender, _e);
         }
 
-        private void ButtonsChanged(object? _sender, ButtonsChangedEventArgs _e)
+        private void OnGameLaunched(object? _sender, GameLaunchedEventArgs _e)
         {
-            if (!Game1.hasStartedDay)
+            var configMenu = this.Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
+            if (configMenu is null)
             {
                 return;
             }
 
-            var key = KeybindList.Parse("F2"); // TODO make this a mod option, changeable via GMCM
-            if (!key.JustPressed())
+            configMenu.Register(
+                mod: this.ModManifest,
+                reset: () => this.Config = new ModConfig(),
+                save: () => this.Helper.WriteConfig(this.Config)
+            );
+
+            configMenu.AddKeybindList(
+                mod: this.ModManifest,
+                getValue: () => this.Config.WhatDoYouWantKeypress,
+                setValue: value => this.Config.WhatDoYouWantKeypress = value,
+                name: () => Helper.Translation.Get("Options_OpenMenuKey")
+            );
+        }
+
+        private void ButtonsChanged(object? _sender, ButtonsChangedEventArgs _e)
+        {
+            if (!Config.WhatDoYouWantKeypress.JustPressed())
+            {
+                return;
+            }
+
+            if (!Game1.hasStartedDay)
             {
                 return;
             }
@@ -73,9 +98,9 @@ namespace WhatDoYouWant
             responseList.Add(new Response(responseKey: ResponseToken_Museum, responseText: Title_Museum));
             responseList.Add(new Response(responseKey: ResponseToken_Stardrops, responseText: Title_Stardrops));
             responseList.Add(new Response(responseKey: ResponseToken_Polyculture, responseText: Title_Polyculture));
-            responseList.Add(new Response(responseKey: ResponseToken_Cancel, responseText: "(Cancel)"));
+            responseList.Add(new Response(responseKey: ResponseToken_Cancel, responseText: "(" + Helper.Translation.Get("Menu_Cancel") + ")"));
             Game1.currentLocation.createQuestionDialogue(
-              question: "Show items still needed for...",
+              question: Helper.Translation.Get("Menu_Question"),
               answerChoices: responseList.ToArray(),
               afterDialogueBehavior: new GameLocation.afterQuestionBehavior(this.GotResponse)
             );
@@ -114,8 +139,8 @@ namespace WhatDoYouWant
                     break;
                 case ResponseToken_Cancel:
                     break;
-                default:
-                    Game1.drawDialogueNoTyping("Not yet implemented");
+                default: // should never happen
+                    Game1.drawDialogueNoTyping(Helper.Translation.Get("Response_NotYetImplemented"));
                     break;
             }
         }
@@ -132,7 +157,7 @@ namespace WhatDoYouWant
                 switch (ingredientId)
                 {
                     case Cooking.CookingIngredient_AnyMilk:
-                        ingredientName = "Milk (any)";
+                        ingredientName = "Milk (any)"; // TODO i18n
                         break;
                     case Cooking.CookingIngredient_AnyEgg:
                         ingredientName = "Egg (any)";
@@ -187,7 +212,8 @@ namespace WhatDoYouWant
             {
                 for (var index = 0; index < sectionsOfHeight.Count; ++index)
                 {
-                    sectionsOfHeight[index] += $"(part {index + 1} of {sectionsOfHeight.Count})\n";
+                    var sectionDescription = Helper.Translation.Get("Response_Section", new { section = index + 1, numberSections = sectionsOfHeight.Count });
+                    sectionsOfHeight[index] += $"({sectionDescription})\n";
                 }
             }
 

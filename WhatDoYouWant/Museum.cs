@@ -39,7 +39,7 @@ namespace WhatDoYouWant
                 var itemDescription = modInstance.Helper.Translation.Get("Museum_Item", new
                 {
                     type = itemType,
-                    item = dataOrErrorItem.DisplayName
+                    item = dataOrErrorItem.DisplayName // TODO distinguish e.g. Ancient Doll (Y) / Ancient Doll (G)
                 });
                 linesToDisplay.Add($"* {itemDescription}{ModEntry.LineBreak}");
             }
