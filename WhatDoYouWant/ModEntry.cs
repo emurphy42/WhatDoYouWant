@@ -1,7 +1,4 @@
-﻿using Microsoft.Xna.Framework.Graphics.PackedVector;
-using Microsoft.Xna.Framework.Input;
-using Netcode;
-using StardewModdingAPI;
+﻿using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
@@ -9,22 +6,13 @@ using StardewValley.BellsAndWhistles;
 using StardewValley.Extensions;
 using StardewValley.GameData.Crops;
 using StardewValley.GameData.Objects;
-using StardewValley.GameData.Shops;
-using StardewValley.ItemTypeDefinitions;
 using StardewValley.Locations;
-using StardewValley.Objects;
-using StardewValley.TokenizableStrings;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Security.AccessControl;
 
 namespace WhatDoYouWant
 {
     public class ModEntry : Mod
     {
-        private const string LineBreak = "^";
+        public const string LineBreak = "^";
         private const int NumberShippedForPolyculture = 15;
 
         private const string ResponseToken_CommunityCenter = "CommunityCenter";
@@ -38,15 +26,15 @@ namespace WhatDoYouWant
         private const string ResponseToken_Polyculture = "Polyculture";
         private const string ResponseToken_Cancel = "Cancel";
 
-        private const string Title_CommunityCenter = "Community Center";
-        private const string Title_Walnuts = "Golden Walnuts";
-        private const string Title_Shipping = "Full Shipment";
-        private const string Title_Cooking = "Gourmet Chef";
-        private const string Title_Crafting = "Craft Master";
-        private const string Title_Fishing = "Master Angler";
-        private const string Title_Museum = "A Complete Collection";
-        private const string Title_Stardrops = "Stardrops";
-        private const string Title_Polyculture = "Polyculture";
+        public const string Title_CommunityCenter = "Community Center";
+        public const string Title_Walnuts = "Golden Walnuts";
+        public const string Title_Shipping = "Full Shipment";
+        public const string Title_Cooking = "Gourmet Chef";
+        public const string Title_Crafting = "Craft Master";
+        public const string Title_Fishing = "Master Angler";
+        public const string Title_Museum = "A Complete Collection";
+        public const string Title_Stardrops = "Stardrops";
+        public const string Title_Polyculture = "Polyculture";
 
         private const string CommunityCenter_Money = "-1";
 
@@ -133,17 +121,6 @@ namespace WhatDoYouWant
             new List<string>() { WalnutType_GotBirdieReward, "", "none", "5" } // Pirate's Wife
         };
 
-        private static readonly Dictionary<string, string> StardropList = new()
-        {
-            { "CF_Fair", "Purchased at Stardew Valley Fair for 2,000 star tokens" },
-            { "CF_Mines", "Found in chest on mine level 100" },
-            { "CF_Spouse", "Given by NPC spouse at 12.5 hearts" },
-            { "CF_Sewer", "Purchased from Krobus in Sewers for 20,000g" },
-            { "CF_Statue", "Received from Old Master Cannoli in Secret Woods" },
-            { "CF_Fish", "Mailed by Willy after Master Angler achievement" },
-            { "museumComplete", "Reward for completing museum collection" }
-        };
-
         // TODO https://stardewcommunitywiki.com/Modding:Modder_Guide/APIs/Translation
 
         public override void Entry(IModHelper helper)
@@ -164,9 +141,9 @@ namespace WhatDoYouWant
                 return;
             }
 
-            // TODO omit things already completed or unavailable (check mail / achievement data)
-            //   * omit CC if already completed or bought Joja membership
-            //   * omit walnuts if island not yet unlocked
+            // TODO default to omitting things already completed or unavailable (check mail / achievement data when possible), option to include them anyway
+            //   * CC if already completed or bought Joja membership
+            //   * walnuts if island not yet unlocked
             List<Response> responseList = new();
             responseList.Add(new Response(responseKey: ResponseToken_CommunityCenter, responseText: Title_CommunityCenter));
             responseList.Add(new Response(responseKey: ResponseToken_Walnuts, responseText: Title_Walnuts));
@@ -211,7 +188,7 @@ namespace WhatDoYouWant
                     ShowMuseumList();
                     break;
                 case ResponseToken_Stardrops:
-                    ShowStardropList(who);
+                    Stardrops.ShowStardropList(modInstance: this, who: who);
                     break;
                 case ResponseToken_Polyculture:
                     ShowPolycultureList();
@@ -680,33 +657,6 @@ namespace WhatDoYouWant
             ShowLines(linesToDisplay, title: Title_Museum);
         }
 
-        public void ShowStardropList(Farmer who)
-        {
-            var linesToDisplay = new List<string>();
-
-            // adapted from base game logic for counting stardrops found
-            foreach (var stardrop in StardropList)
-            {
-                if (who.hasOrWillReceiveMail(stardrop.Key))
-                {
-                    continue;
-                }
-                if (stardrop.Key == "CF_Mines" && who.chestConsumedMineLevels.ContainsKey(100) && who.chestConsumedMineLevels[100])
-                {
-                    continue;
-                }
-                linesToDisplay.Add($"* {stardrop.Value}{LineBreak}");
-            }
-
-            if (linesToDisplay.Count == 0)
-            {
-                Game1.drawDialogueNoTyping($"{Title_Stardrops} are complete!");
-                return;
-            }
-
-            ShowLines(linesToDisplay, title: Title_Stardrops);
-        }
-
         public void ShowPolycultureList()
         {
             var linesToDisplay = new List<string>();
@@ -738,7 +688,7 @@ namespace WhatDoYouWant
             ShowLines(linesToDisplay, title: Title_Polyculture);
         }
 
-        private void ShowLines(List<string> linesToDisplay, string? title = null, bool longLinesExpected = false)
+        public void ShowLines(List<string> linesToDisplay, string? title = null, bool longLinesExpected = false)
         {
             if (title != null)
             {
