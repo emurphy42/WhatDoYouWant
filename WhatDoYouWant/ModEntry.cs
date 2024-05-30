@@ -3,7 +3,6 @@ using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
-using StardewValley.Extensions;
 using StardewValley.Locations;
 
 namespace WhatDoYouWant
@@ -105,7 +104,7 @@ namespace WhatDoYouWant
                     ShowCookingList(who);
                     break;
                 case ResponseToken_Crafting:
-                    ShowCraftingList(who);
+                    Crafting.ShowCraftingList(modInstance: this, who: who);
                     break;
                 case ResponseToken_Fishing:
                     Fishing.ShowFishingList(modInstance: this, who: who);
@@ -315,50 +314,7 @@ namespace WhatDoYouWant
             ShowLines(linesToDisplay, title: Title_Cooking, longLinesExpected: true);
         }
 
-        public void ShowCraftingList(Farmer who)
-        {
-            var linesToDisplay = new List<string>();
-
-            // adapted from base game logic to calculate crafting %
-            //   TODO sort options: mod items first, last
-            var craftingDictionary = DataLoader.CraftingRecipes(Game1.content);
-            foreach (var keyValuePair in craftingDictionary)
-            {
-                // keyValuePair = e.g. <"Wood Fence", "388 2/Field/322/false/l 0">
-                // value = list of ingredient IDs and quantities / unused / item ID of crafted item / big craftable? / unlock conditions
-                var key1 = keyValuePair.Key;
-                var key2 = ArgUtility.SplitBySpaceAndGet(ArgUtility.Get(keyValuePair.Value.Split('/'), 2), 0);
-                if (key1 == "Wedding Ring")
-                {
-                    continue;
-                }
-                who.craftingRecipes.TryGetValue(key1, out int numberCrafted);
-                if (numberCrafted > 0)
-                {
-                    continue;
-                }
-
-                // TODO parse unlock conditions
-
-                var ingredients = ArgUtility.Get(keyValuePair.Value.Split('/'), 0);
-                var ingredientText = GetIngredientText(ingredients);
-
-                var isBigCraftable = ArgUtility.SplitBySpaceAndGet(ArgUtility.Get(keyValuePair.Value.Split('/'), 3), 0);
-                var itemPrefix = (isBigCraftable == "true") ? "(BC)" : "(O)";
-                var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(itemPrefix + key2);
-                linesToDisplay.Add($"* {dataOrErrorItem.DisplayName} - {ingredientText}{LineBreak}");
-            }
-
-            if (linesToDisplay.Count == 0)
-            {
-                Game1.drawDialogueNoTyping($"{Title_Crafting} is complete!");
-                return;
-            }
-
-            ShowLines(linesToDisplay, title: Title_Crafting, longLinesExpected: true);
-        }
-
-        private static string GetIngredientText(string ingredients)
+        public static string GetIngredientText(string ingredients)
         {
             var ingredientList = ingredients.Trim().Split(' ');
             var ingredientTextList = new List<string>();
