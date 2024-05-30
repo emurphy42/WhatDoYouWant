@@ -46,7 +46,7 @@ namespace WhatDoYouWant
                 }
                 var numberNeeded = NumberShippedForPolyculture - numberShipped;
                 var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(cropData.HarvestItemId);
-                var cropDescription = modInstance.Helper.Translation.Get($"Polyculture_Crop", new {
+                var cropDescription = modInstance.Helper.Translation.Get("Polyculture_Crop", new {
                     season = String.Join(", ", seasonsList),
                     crop = dataOrErrorItem.DisplayName,
                     number = numberNeeded
@@ -56,7 +56,7 @@ namespace WhatDoYouWant
 
             if (linesToDisplay.Count == 0)
             {
-                var completeDescription = modInstance.Helper.Translation.Get("Polyculture_Complete", new { title = ModEntry.Title_Stardrops });
+                var completeDescription = modInstance.Helper.Translation.Get("Polyculture_Complete", new { title = ModEntry.Title_Polyculture });
                 Game1.drawDialogueNoTyping(completeDescription);
                 return;
             }

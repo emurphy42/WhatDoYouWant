@@ -183,7 +183,7 @@ namespace WhatDoYouWant
                     ShowFishingList(who);
                     break;
                 case ResponseToken_Museum:
-                    ShowMuseumList();
+                    Museum.ShowMuseumList(modInstance: this);
                     break;
                 case ResponseToken_Stardrops:
                     Stardrops.ShowStardropList(modInstance: this, who: who);
@@ -618,41 +618,6 @@ namespace WhatDoYouWant
             }
 
             ShowLines(linesToDisplay, title: Title_Fishing);
-        }
-
-        public void ShowMuseumList()
-        {
-            var linesToDisplay = new List<string>();
-
-            // adapted from base game logic to award A Complete Collection achievement
-            //   TODO sort options: alpha, type(mineral / artifact); mod items first, last
-            foreach (var parsedItemData in ItemRegistry.GetObjectTypeDefinition().GetAllData())
-            {
-                var qualifiedItemId = parsedItemData.QualifiedItemId;
-                if (!LibraryMuseum.IsItemSuitableForDonation(qualifiedItemId, checkDonatedItems: true))
-                {
-                    continue;
-                }
-                var baseContextTags = ItemContextTagManager.GetBaseContextTags(qualifiedItemId);
-                if (
-                    !baseContextTags.Contains("museum_donatable")
-                        && !baseContextTags.Contains("item_type_minerals")
-                        && !baseContextTags.Contains("item_type_arch")
-                )
-                {
-                    continue;
-                }
-                var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(qualifiedItemId);
-                linesToDisplay.Add($"* {dataOrErrorItem.DisplayName}{LineBreak}");
-            }
-
-            if (linesToDisplay.Count == 0)
-            {
-                Game1.drawDialogueNoTyping($"{Title_Museum} is complete!");
-                return;
-            }
-
-            ShowLines(linesToDisplay, title: Title_Museum);
         }
 
         public void ShowLines(List<string> linesToDisplay, string? title = null, bool longLinesExpected = false)

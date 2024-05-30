@@ -1,4 +1,10 @@
 {
+  // A Complete Collection
+
+  "Museum_Item": "{{type}} - {{item}}",
+
+  "Museum_Complete": "{{title}} is complete!",
+
   // Stardrops
 
   "Stardrop_CF_Fair": "Purchased at Stardew Valley Fair for 2,000 star tokens",
