@@ -6,13 +6,6 @@ namespace WhatDoYouWant
     internal class Polyculture
     {
         private const int NumberShippedForPolyculture = 15;
-        private static readonly List<Season> seasons = new()
-        {
-            Season.Spring,
-            Season.Summer,
-            Season.Fall,
-            Season.Winter
-        };
 
         public static void ShowPolycultureList(ModEntry modInstance)
         {
@@ -37,7 +30,7 @@ namespace WhatDoYouWant
 
                 // Add it to the list
                 var seasonsList = new List<string>();
-                foreach (var season in seasons)
+                foreach (var season in ModEntry.seasons)
                 {
                     if (cropData.Seasons.Contains(season))
                     {

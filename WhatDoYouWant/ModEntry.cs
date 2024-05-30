@@ -24,7 +24,7 @@ namespace WhatDoYouWant
         private const string ResponseToken_Polyculture = "Polyculture";
         private const string ResponseToken_Cancel = "Cancel";
 
-        public const string Title_CommunityCenter = "Community Center";
+        public const string Title_CommunityCenter = "Community Center"; // TODO replace these with functions pulling them from base game content
         public const string Title_Walnuts = "Golden Walnuts";
         public const string Title_Shipping = "Full Shipment";
         public const string Title_Cooking = "Gourmet Chef";
@@ -33,6 +33,14 @@ namespace WhatDoYouWant
         public const string Title_Museum = "A Complete Collection";
         public const string Title_Stardrops = "Stardrops";
         public const string Title_Polyculture = "Polyculture";
+
+        public static readonly List<Season> seasons = new()
+        {
+            Season.Spring,
+            Season.Summer,
+            Season.Fall,
+            Season.Winter
+        };
 
         private const string CommunityCenter_Money = "-1";
 
@@ -180,7 +188,7 @@ namespace WhatDoYouWant
                     ShowCraftingList(who);
                     break;
                 case ResponseToken_Fishing:
-                    ShowFishingList(who);
+                    Fishing.ShowFishingList(modInstance: this, who: who);
                     break;
                 case ResponseToken_Museum:
                     Museum.ShowMuseumList(modInstance: this);
@@ -585,39 +593,6 @@ namespace WhatDoYouWant
             }
 
             return String.Join(", ", ingredientTextList);
-        }
-
-        public void ShowFishingList(Farmer who)
-        {
-            var linesToDisplay = new List<string>();
-
-            // adapted from base game logic to calculate fishing %
-            //   TODO sort options: alpha, season (starting with current); mod items first, last
-            foreach (var parsedItemData in ItemRegistry.GetObjectTypeDefinition().GetAllData())
-            {
-                if (parsedItemData.ObjectType != "Fish")
-                {
-                    continue;
-                }
-                if (parsedItemData.RawData is ObjectData rawData && rawData.ExcludeFromFishingCollection)
-                {
-                    continue;
-                }
-                if (who.fishCaught.ContainsKey(parsedItemData.QualifiedItemId))
-                {
-                    continue;
-                }
-                var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(parsedItemData.QualifiedItemId);
-                linesToDisplay.Add($"* {dataOrErrorItem.DisplayName}{LineBreak}");
-            }
-
-            if (linesToDisplay.Count == 0)
-            {
-                Game1.drawDialogueNoTyping($"{Title_Fishing} is complete!");
-                return;
-            }
-
-            ShowLines(linesToDisplay, title: Title_Fishing);
         }
 
         public void ShowLines(List<string> linesToDisplay, string? title = null, bool longLinesExpected = false)

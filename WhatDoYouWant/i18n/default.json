@@ -1,4 +1,9 @@
 {
+  // Master Angler
+
+  "Fishing_Fish": "{{fish}}",
+  "Fishing_Complete": "{{title}} is complete!",
+
   // A Complete Collection
 
   "Museum_Item": "{{type}} - {{item}}",
