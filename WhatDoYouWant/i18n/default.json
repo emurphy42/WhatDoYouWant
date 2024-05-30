@@ -3,6 +3,10 @@
 
   "Walnuts_Complete": "{{title}} are complete!",
 
+  // Full Shipment
+
+  "Shipping_Complete": "{{title}} is complete!",
+
   // Master Angler
 
   "Fishing_Fish": "{{fish}}",

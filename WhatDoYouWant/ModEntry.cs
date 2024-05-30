@@ -99,7 +99,7 @@ namespace WhatDoYouWant
                     Walnuts.ShowWalnutsList(modInstance: this);
                     break;
                 case ResponseToken_Shipping:
-                    ShowFullShipmentList(who);
+                    Shipping.ShowShippingList(modInstance: this, who: who);
                     break;
                 case ResponseToken_Cooking:
                     ShowCookingList(who);
@@ -274,46 +274,6 @@ namespace WhatDoYouWant
             }
 
             ShowLines(linesToDisplay, title: Title_CommunityCenter, longLinesExpected: true);
-        }
-
-        public void ShowFullShipmentList(Farmer who)
-        {
-            var linesToDisplay = new List<string>();
-
-            // adapted from base game logic to calculate full shipment %
-            //   TODO sort options: alpha, collection tab order, category / type; mod items first, last
-            foreach (var parsedItemData in ItemRegistry.GetObjectTypeDefinition().GetAllData())
-            {
-                switch (parsedItemData.Category)
-                {
-                    case StardewValley.Object.CookingCategory:
-                    case StardewValley.Object.GemCategory:
-                        continue;
-                    default:
-                        if (!StardewValley.Object.isPotentialBasicShipped(
-                            itemId: parsedItemData.ItemId,
-                            category: parsedItemData.Category,
-                            objectType: parsedItemData.ObjectType
-                        ))
-                        {
-                            continue;
-                        }
-                        if (who.basicShipped.ContainsKey(parsedItemData.ItemId))
-                        {
-                            continue;
-                        }
-                        linesToDisplay.Add($"* {parsedItemData.DisplayName}{LineBreak}");
-                        break;
-                }
-            }
-
-            if (linesToDisplay.Count == 0)
-            {
-                Game1.drawDialogueNoTyping($"{Title_Shipping} is complete!");
-                return;
-            }
-
-            ShowLines(linesToDisplay, title: Title_Shipping);
         }
 
         public void ShowCookingList(Farmer who)
