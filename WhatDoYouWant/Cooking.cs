@@ -4,6 +4,10 @@ namespace WhatDoYouWant
 {
     internal class Cooking
     {
+        public const string CookingIngredient_AnyMilk = "-6";
+        public const string CookingIngredient_AnyEgg = "-5";
+        public const string CookingIngredient_AnyFish = "-4";
+
         public static void ShowCookingList(ModEntry modInstance, Farmer who)
         {
             var linesToDisplay = new List<string>();
