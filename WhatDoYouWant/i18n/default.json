@@ -35,6 +35,11 @@
   "Cooking_NotYetLearned": "not yet learned",
   "Cooking_Complete": "{{title}} is complete!",
 
+  "Options_CookingSortOrder": "Gourmet Chef sort order",
+  "Options_CookingSortOrder_KnownRecipesFirst": "Known recipes first",
+  "Options_CookingSortOrder_RecipeName": "Recipe name",
+  "Options_CookingSortOrder_CollectionsTab": "Based on Collections tab",
+
   // Craft Master
 
   "Crafting_Complete": "{{title}} is complete!",

@@ -1,23 +1,32 @@
 ﻿using StardewValley;
+using StardewValley.ItemTypeDefinitions;
 
 namespace WhatDoYouWant
 {
+    internal class RecipeData
+    {
+        public string? RecipeName { get; set; }
+        public string? RecipeIngredients { get; set; }
+        public bool RecipeLearned { get; set; }
+        public string? TextureName { get; set; } // Collections Tab sort option
+        public int SpriteIndex { get; set; } // Collections Tab sort option
+    }
+
     internal class Cooking
     {
-        public const string CookingIngredient_AnyMilk = "-6";
-        public const string CookingIngredient_AnyEgg = "-5";
-        public const string CookingIngredient_AnyFish = "-4";
+        public const string SortOrder_KnownRecipesFirst = "KnownRecipesFirst";
+        public const string SortOrder_RecipeName = "RecipeName";
+        public const string SortOrder_CollectionsTab = "CollectionsTab";
+
+        public const string CookingIngredient_AnyMilk = "-6"; // hardcoded instead of StardewValley.Object.MilkCategory.ToString() so other code can switch() on it
+        public const string CookingIngredient_AnyEgg = "-5"; // StardewValley.Object.EggCategory
+        public const string CookingIngredient_AnyFish = "-4"; // StardewValley.Object.FishCategory
 
         public static void ShowCookingList(ModEntry modInstance, Farmer who)
         {
-            var linesToDisplay = new List<string>();
-
-            var notYetLearnedPrefix = modInstance.Helper.Translation.Get("Cooking_NotYetLearned") + " - ";
-
             // adapted from base game logic to calculate cooking %
-            //   TODO sort options: mod items first, last
-            var cookingDictionary = DataLoader.CookingRecipes(Game1.content);
-            foreach (var keyValuePair in cookingDictionary)
+            var recipeList = new List<RecipeData>();
+            foreach (var keyValuePair in DataLoader.CookingRecipes(Game1.content))
             {
                 // keyValuePair = e.g. <"Fried Egg", "-5 1/10 10/194/default">
                 // value = list of ingredient IDs and quantities / unused / item ID of cooked dish / unlock conditions
@@ -31,20 +40,45 @@ namespace WhatDoYouWant
                 }
 
                 // TODO parse unlock conditions
-                var learnedPrefix = recipeLearned ? "" : notYetLearnedPrefix;
 
                 var ingredients = ArgUtility.Get(keyValuePair.Value.Split('/'), 0);
                 var ingredientText = ModEntry.GetIngredientText(ingredients);
 
                 var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(key2);
-                linesToDisplay.Add($"* {dataOrErrorItem.DisplayName} - {learnedPrefix}{ingredientText}{ModEntry.LineBreak}");
+
+                recipeList.Add(new RecipeData()
+                {
+                    RecipeName = dataOrErrorItem.DisplayName,
+                    RecipeIngredients = ModEntry.GetIngredientText(ingredients),
+                    RecipeLearned = recipeLearned,
+                    TextureName = dataOrErrorItem.TextureName,
+                    SpriteIndex = dataOrErrorItem.SpriteIndex
+                });
             }
 
-            if (linesToDisplay.Count == 0)
+            if (recipeList.Count == 0)
             {
                 var completeDescription = modInstance.Helper.Translation.Get("Cooking_Complete", new { title = ModEntry.Title_Cooking });
                 Game1.drawDialogueNoTyping(completeDescription);
                 return;
+            }
+
+            var sortByKnownRecipesFirst = (modInstance.Config.CookingSortOrder == SortOrder_KnownRecipesFirst);
+            var sortByRecipeName = (modInstance.Config.CookingSortOrder == SortOrder_RecipeName);
+            var sortByCollectionsTab = (modInstance.Config.CookingSortOrder == SortOrder_CollectionsTab);
+
+            var notYetLearnedPrefix = modInstance.Helper.Translation.Get("Cooking_NotYetLearned") + " - ";
+
+            var linesToDisplay = new List<string>();
+            foreach (var recipe in recipeList
+                .OrderBy(entry => sortByCollectionsTab ? entry.TextureName : "")
+                .ThenBy(entry => sortByCollectionsTab ? entry.SpriteIndex : 0)
+                .ThenByDescending(entry => sortByKnownRecipesFirst ? entry.RecipeLearned : false)
+                .ThenBy(entry => entry.RecipeName)
+            )
+            {
+                var learnedPrefix = recipe.RecipeLearned ? "" : notYetLearnedPrefix;
+                linesToDisplay.Add($"* {recipe.RecipeName} - {learnedPrefix}{recipe.RecipeIngredients}{ModEntry.LineBreak}");
             }
 
             modInstance.ShowLines(linesToDisplay, title: ModEntry.Title_Cooking, longLinesExpected: true);

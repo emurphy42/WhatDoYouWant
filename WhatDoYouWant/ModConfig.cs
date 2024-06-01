@@ -13,7 +13,7 @@ namespace WhatDoYouWant
 
         public string ShippingSortOrder = Shipping.SortOrder_Category;
 
-        // TODO cooking options
+        public string CookingSortOrder = Cooking.SortOrder_KnownRecipesFirst;
 
         // TODO crafting options
 

@@ -89,7 +89,18 @@ namespace WhatDoYouWant
                 formatAllowedValue: value => Helper.Translation.Get($"Options_ShippingSortOrder_{value}")
             );
 
-            // TODO cooking options
+            configMenu.AddTextOption(
+                mod: this.ModManifest,
+                getValue: () => this.Config.CookingSortOrder,
+                setValue: value => this.Config.CookingSortOrder = value,
+                name: () => Helper.Translation.Get("Options_CookingSortOrder"),
+                allowedValues: new string[] {
+                    Cooking.SortOrder_KnownRecipesFirst,
+                    Cooking.SortOrder_RecipeName,
+                    Cooking.SortOrder_CollectionsTab
+                },
+                formatAllowedValue: value => Helper.Translation.Get($"Options_CookingSortOrder_{value}")
+            );
 
             // TODO crafting options
 
