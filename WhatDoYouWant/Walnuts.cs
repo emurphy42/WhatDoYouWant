@@ -85,12 +85,22 @@ namespace WhatDoYouWant
             new List<string>() { WalnutType_GotBirdieReward, "", "none", "5" } // Pirate's Wife
         };
 
+        private static string GetHintText(string hintKey)
+        {
+            var hintText = Game1.content.LoadString($"Strings\\Locations:NutHint_{hintKey}");
+            if (hintText.StartsWith("{0} "))
+            {
+                hintText = hintText.Substring(4, 1).ToUpper() + hintText.Substring(5);
+            }
+            return hintText;
+        }
+
         public static void ShowWalnutsList(ModEntry modInstance)
         {
             var linesToDisplay = new List<string>();
 
             // adapted from base game logic for hints in Leo's hut
-            //   TODO sort options: area / hint, hint
+            //   TODO sort options: area, hint
             //   TODO option to provide more detail (see Stardew Checker source)
             //   TODO option to omit areas not yet unlocked, otherwise identify them as such
             var hintDictionary = new Dictionary<string, int>();
@@ -137,21 +147,12 @@ namespace WhatDoYouWant
                 }
             }
 
-            foreach (var hint in hintDictionary)
+            foreach (var hint in hintDictionary
+                .OrderBy(entry => entry.Key == "none" ? 2 : 1)
+                .ThenBy(entry => GetHintText(entry.Key))
+            )
             {
-                string hintText;
-                if (hint.Key == "none")
-                {
-                    hintText = "???";
-                }
-                else
-                {
-                    hintText = Game1.content.LoadString($"Strings\\Locations:NutHint_{hint.Key}");
-                    if (hintText.StartsWith("{0} "))
-                    {
-                        hintText = hintText.Substring(4, 1).ToUpper() + hintText.Substring(5);
-                    }
-                }
+                var hintText = (hint.Key == "none") ? "???" : GetHintText(hint.Key);
                 if (hint.Value > 1)
                 {
                     hintText += $" ({hint.Value})";

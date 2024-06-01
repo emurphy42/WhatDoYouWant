@@ -11,7 +11,7 @@ namespace WhatDoYouWant
             var linesToDisplay = new List<string>();
 
             // adapted from base game logic to calculate fishing %
-            //   TODO sort options: season (spring first), season (current first), alpha; mod items first, last
+            //   TODO sort options: season (spring first), season (current first), fish name, collections tab
             //   seasons may vary by location, https://stardewvalleywiki.com/Modding:Location_data
             foreach (var parsedItemData in ItemRegistry.GetObjectTypeDefinition().GetAllData())
             {
