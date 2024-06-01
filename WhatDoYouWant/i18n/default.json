@@ -25,7 +25,7 @@
 
   "Shipping_Complete": "{{title}} is complete!",
 
-  "Options_ShippingSortOrder": "Full Shipment sort order",
+  "Options_ShippingSortOrder": "Sort order - Full Shipment",
   "Options_ShippingSortOrder_Category": "Category",
   "Options_ShippingSortOrder_ItemName": "Item name",
   "Options_ShippingSortOrder_CollectionsTab": "Based on Collections tab",
@@ -35,7 +35,7 @@
   "Cooking_NotYetLearned": "not yet learned",
   "Cooking_Complete": "{{title}} is complete!",
 
-  "Options_CookingSortOrder": "Gourmet Chef sort order",
+  "Options_CookingSortOrder": "Sort order - Gourmet Chef",
   "Options_CookingSortOrder_KnownRecipesFirst": "Known recipes first",
   "Options_CookingSortOrder_RecipeName": "Recipe name",
   "Options_CookingSortOrder_CollectionsTab": "Based on Collections tab",
@@ -45,7 +45,7 @@
   "Crafting_NotYetLearned": "not yet learned",
   "Crafting_Complete": "{{title}} is complete!",
 
-  "Options_CraftingSortOrder": "Craft Master sort order",
+  "Options_CraftingSortOrder": "Sort order - Craft Master",
   "Options_CraftingSortOrder_KnownRecipesFirst": "Known recipes first",
   "Options_CraftingSortOrder_RecipeName": "Recipe name",
   "Options_CraftingSortOrder_CraftingMenu": "Based on Crafting menu",
@@ -57,9 +57,12 @@
 
   // A Complete Collection
 
-  "Museum_Item": "{{type}} - {{item}}",
-
   "Museum_Complete": "{{title}} is complete!",
+
+  "Options_MuseumSortOrder": "Sort order - A Complete Collection",
+  "Options_MuseumSortOrder_Type": "Type / item name",
+  "Options_MuseumSortOrder_ItemName": "Item name",
+  "Options_MuseumSortOrder_CollectionsTabs": "Based on Collections tabs",
 
   // Stardrops
 
@@ -70,12 +73,10 @@
   "Stardrop_CF_Statue": "Received from Old Master Cannoli in Secret Woods",
   "Stardrop_CF_Fish": "Mailed by Willy after Master Angler achievement",
   "Stardrop_museumComplete": "Reward for completing museum collection",
-
   "Stardrop_Complete": "{{title}} are complete!",
 
   // Polyculture
 
   "Polyculture_Crop": "{{season}} - {{crop}} - ship {{number}}",
-
   "Polyculture_Complete": "{{title}} is complete!"
 }

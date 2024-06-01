@@ -125,6 +125,19 @@ namespace WhatDoYouWant
 
             // TODO A Complete Collection
 
+            configMenu.AddTextOption(
+                mod: this.ModManifest,
+                getValue: () => this.Config.MuseumSortOrder,
+                setValue: value => this.Config.MuseumSortOrder = value,
+                name: () => Helper.Translation.Get("Options_MuseumSortOrder"),
+                allowedValues: new string[] {
+                    Museum.SortOrder_Type,
+                    Museum.SortOrder_ItemName,
+                    Museum.SortOrder_CollectionsTabs
+                },
+                formatAllowedValue: value => Helper.Translation.Get($"Options_MuseumSortOrder_{value}")
+            );
+
             // TODO Stardrops
 
             // TDOO Polyculture

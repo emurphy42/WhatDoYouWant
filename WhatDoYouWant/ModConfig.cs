@@ -7,22 +7,30 @@ namespace WhatDoYouWant
     {
         public KeybindList WhatDoYouWantKeypress = KeybindList.Parse("F2");
 
-        // TODO CC options
+        // TODO Community Center
 
-        // TODO walnut options
+        // TODO Golden Walnuts
+
+        // Full Shipment
 
         public string ShippingSortOrder = Shipping.SortOrder_Category;
 
+        // Gourmet Chef
+
         public string CookingSortOrder = Cooking.SortOrder_KnownRecipesFirst;
+
+        // Craft Master
 
         public string CraftingSortOrder = Crafting.SortOrder_KnownRecipesFirst;
 
-        // TODO fishing options
+        // TODO Master Angler
 
-        // TODO museum options
+        // TODO A Complete Collection
 
-        // TODO stardrop options
+        public string MuseumSortOrder = Museum.SortOrder_Type;
 
-        // TDOO polyculture options
+        // TODO Stardrops
+
+        // TDOO Polyculture
     }
 }

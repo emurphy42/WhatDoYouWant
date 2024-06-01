@@ -1,21 +1,48 @@
 ﻿using StardewValley;
 using StardewValley.Locations;
 using StardewValley.Extensions;
+using StardewValley.ItemTypeDefinitions;
 
 namespace WhatDoYouWant
 {
     internal class Museum
     {
+        public const string SortOrder_Type = "Type";
+        public const string SortOrder_ItemName = "ItemName";
+        public const string SortOrder_CollectionsTabs = "CollectionsTabs";
+
+        private static int GetTypeSortOrder(ParsedItemData parsedItemData)
+        {
+            var baseContextTags = ItemContextTagManager.GetBaseContextTags(parsedItemData.QualifiedItemId);
+            if (baseContextTags.Contains("item_type_arch"))
+            {
+                return 1;
+            }
+            if (baseContextTags.Contains("item_type_minerals"))
+            {
+                return 2;
+            }
+            return 3;
+        }
+
         public static void ShowMuseumList(ModEntry modInstance)
         {
             var linesToDisplay = new List<string>();
+
+            var sortByType = (modInstance.Config.MuseumSortOrder == SortOrder_Type);
+            var sortByItemName = (modInstance.Config.MuseumSortOrder == SortOrder_ItemName);
+            var sortByCollectionsTabs = (modInstance.Config.MuseumSortOrder == SortOrder_CollectionsTabs);
 
             var itemType_Mineral = Game1.content.LoadString("Strings\\UI:Collections_Minerals");
             var itemType_Artifact = Game1.content.LoadString("Strings\\UI:Collections_Artifacts");
 
             // adapted from base game logic to award A Complete Collection achievement
-            //   TODO sort options: alpha, type (mineral / artifact); mod items first, last
-            foreach (var parsedItemData in ItemRegistry.GetObjectTypeDefinition().GetAllData())
+            foreach (var parsedItemData in ItemRegistry.GetObjectTypeDefinition().GetAllData()
+                .OrderBy(entry => sortByType || sortByCollectionsTabs ? GetTypeSortOrder(entry) : 0)
+                .ThenBy(entry => sortByCollectionsTabs ? entry.TextureName : "")
+                .ThenBy(entry => sortByCollectionsTabs ? entry.SpriteIndex : 0)
+                .ThenBy(entry => entry.DisplayName)
+            )
             {
                 // Does it need to be donated?
                 var qualifiedItemId = parsedItemData.QualifiedItemId;
@@ -34,13 +61,31 @@ namespace WhatDoYouWant
                 }
 
                 // Add it to the list
-                var itemType = baseContextTags.Contains("item_type_minerals") ? itemType_Mineral : itemType_Artifact;
-                var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(qualifiedItemId);
-                var itemDescription = modInstance.Helper.Translation.Get("Museum_Item", new
+                string itemType;
+                if (baseContextTags.Contains("item_type_minerals"))
                 {
-                    type = itemType,
-                    item = dataOrErrorItem.DisplayName // TODO distinguish e.g. Ancient Doll (Y) / Ancient Doll (G)
-                });
+                    itemType = itemType_Mineral;
+                } else
+                {
+                    if (baseContextTags.Contains("item_type_arch"))
+                    {
+                        itemType = itemType_Artifact;
+                    } else
+                    {
+                        itemType = "???";
+                    }
+                }
+
+                var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(qualifiedItemId);
+                var itemDescription = dataOrErrorItem.DisplayName; // TODO distinguish e.g. Ancient Doll (Y) / Ancient Doll (G)
+                if (sortByItemName)
+                {
+                    itemDescription = $"{itemDescription} - {itemType}";
+                } else
+                {
+                    itemDescription = $"{itemType} - {itemDescription}";
+                }
+
                 linesToDisplay.Add($"* {itemDescription}{ModEntry.LineBreak}");
             }
 
