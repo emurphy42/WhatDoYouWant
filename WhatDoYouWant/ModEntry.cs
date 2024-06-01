@@ -41,7 +41,7 @@ namespace WhatDoYouWant
             Season.Winter
         };
 
-        private ModConfig Config = new();
+        public ModConfig Config = new();
 
         public override void Entry(IModHelper helper)
         {
@@ -71,6 +71,35 @@ namespace WhatDoYouWant
                 setValue: value => this.Config.WhatDoYouWantKeypress = value,
                 name: () => Helper.Translation.Get("Options_OpenMenuKey")
             );
+
+            // TODO CC options
+
+            // TODO walnut options
+
+            configMenu.AddTextOption(
+                mod: this.ModManifest,
+                getValue: () => this.Config.ShippingSortOrder,
+                setValue: value => this.Config.ShippingSortOrder = value,
+                name: () => Helper.Translation.Get("Options_ShippingSortOrder"),
+                allowedValues: new string[] {
+                    Shipping.SortOrder_Category,
+                    Shipping.SortOrder_ItemName,
+                    Shipping.SortOrder_CollectionsTab
+                },
+                formatAllowedValue: value => Helper.Translation.Get($"Options_ShippingSortOrder_{value}")
+            );
+
+            // TODO cooking options
+
+            // TODO crafting options
+
+            // TODO fishing options
+
+            // TODO museum options
+
+            // TODO stardrop options
+
+            // TDOO polyculture options
         }
 
         private void ButtonsChanged(object? _sender, ButtonsChangedEventArgs _e)

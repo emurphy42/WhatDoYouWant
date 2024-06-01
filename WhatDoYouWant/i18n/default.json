@@ -3,9 +3,11 @@
 
   "Menu_Question": "Show items still needed for...",
   "Menu_Cancel": "Cancel",
+
   "Response_NotYetImplemented": "Not yet implemented",
   "Response_Section": "part {{section}} of {{numberSections}}",
-  "Options_OpenMenuKey":  "Open menu key",
+
+  "Options_OpenMenuKey": "Open menu key",
 
   // Community Center
 
@@ -18,6 +20,11 @@
   // Full Shipment
 
   "Shipping_Complete": "{{title}} is complete!",
+
+  "Options_ShippingSortOrder": "Full Shipment sort order",
+  "Options_ShippingSortOrder_CollectionsTab": "Similar to Collections tab",
+  "Options_ShippingSortOrder_Category": "Category",
+  "Options_ShippingSortOrder_ItemName": "Item name",
 
   // Gourmet Chef
 

@@ -1,17 +1,31 @@
 ﻿using StardewValley;
 using StardewValley.Extensions;
+using StardewValley.ItemTypeDefinitions;
+using System.Runtime.CompilerServices;
 
 namespace WhatDoYouWant
 {
     internal class Shipping
     {
+        public const string SortOrder_Category = "Category";
+        public const string SortOrder_ItemName = "ItemName";
+        public const string SortOrder_CollectionsTab = "CollectionsTab"; // not exact; Wine, Pickles, Jelly, Juice are manually moved from end to specific spots in middle
+
         public static void ShowShippingList(ModEntry modInstance, Farmer who)
         {
             var linesToDisplay = new List<string>();
 
+            var sortByCategory = (modInstance.Config.ShippingSortOrder == SortOrder_Category);
+            var sortByItemName = (modInstance.Config.ShippingSortOrder == SortOrder_ItemName);
+            var sortByCollectionsTab = (modInstance.Config.ShippingSortOrder == SortOrder_CollectionsTab);
+
             // adapted from base game logic to calculate full shipment %
-            //   TODO sort options: alpha, collection tab order, category / type; mod items first, last
-            foreach (var parsedItemData in ItemRegistry.GetObjectTypeDefinition().GetAllData())
+            foreach (var parsedItemData in ItemRegistry.GetObjectTypeDefinition().GetAllData()
+                .OrderBy(entry => sortByCollectionsTab ? entry.TextureName : "")
+                .ThenBy(entry => sortByCollectionsTab ? entry.SpriteIndex : 0)
+                .ThenBy(entry => sortByCategory ? StardewValley.Object.GetCategoryDisplayName(entry.Category) : "")
+                .ThenBy(entry => entry.DisplayName)
+            )
             {
                 switch (parsedItemData.Category)
                 {
@@ -36,7 +50,19 @@ namespace WhatDoYouWant
                         }
 
                         // Add it to the list
-                        linesToDisplay.Add($"* {parsedItemData.DisplayName}{ModEntry.LineBreak}");
+                        var itemName = parsedItemData.DisplayName;
+                        var categoryName = StardewValley.Object.GetCategoryDisplayName(parsedItemData.Category);
+                        if (!string.IsNullOrWhiteSpace(categoryName))
+                        {
+                            if (sortByItemName)
+                            {
+                                itemName = $"{itemName} - {categoryName}";
+                            } else
+                            {
+                                itemName = $"{categoryName} - {itemName}";
+                            }
+                        }
+                        linesToDisplay.Add($"* {itemName}{ModEntry.LineBreak}");
                         break;
                 }
             }
@@ -47,7 +73,7 @@ namespace WhatDoYouWant
                 Game1.drawDialogueNoTyping(completeDescription);
                 return;
             }
-
+            
             modInstance.ShowLines(linesToDisplay, title: ModEntry.Title_Shipping);
         }
 

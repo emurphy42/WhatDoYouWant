@@ -39,7 +39,7 @@ namespace WhatDoYouWant
                 {
                     continue;
                 }
-                // TODO option to only include unlocked bundles
+                // TODO option to only include unlocked bundles, otherwise identify them as such
                 //if (!communityCenter.shouldNoteAppearInArea(CommunityCenter.getAreaNumberFromName(areaName)))
                 //{
                 //    continue;

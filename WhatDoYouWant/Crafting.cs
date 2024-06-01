@@ -9,6 +9,7 @@ namespace WhatDoYouWant
             var linesToDisplay = new List<string>();
 
             // adapted from base game logic to calculate crafting %
+            //   TODO note crafting recipes not yet acquired
             //   TODO sort options: mod items first, last
             var craftingDictionary = DataLoader.CraftingRecipes(Game1.content);
             foreach (var keyValuePair in craftingDictionary)

@@ -92,6 +92,7 @@ namespace WhatDoYouWant
             // adapted from base game logic for hints in Leo's hut
             //   TODO sort by area
             //   TODO option to provide more detail (see Stardew Checker source)
+            //   TODO option to omit areas not yet unlocked, otherwise identify them as such
             var hintDictionary = new Dictionary<string, int>();
             foreach (var walnut in WalnutList)
             {
