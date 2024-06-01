@@ -1,5 +1,4 @@
 ﻿using StardewValley;
-using StardewValley.ItemTypeDefinitions;
 
 namespace WhatDoYouWant
 {
@@ -57,7 +56,7 @@ namespace WhatDoYouWant
 
             if (recipeList.Count == 0)
             {
-                var completeDescription = modInstance.Helper.Translation.Get("Cooking_Complete", new { title = ModEntry.Title_Cooking });
+                var completeDescription = modInstance.Helper.Translation.Get("Cooking_Complete", new { title = ModEntry.GetTitle_Cooking() });
                 Game1.drawDialogueNoTyping(completeDescription);
                 return;
             }
@@ -80,7 +79,7 @@ namespace WhatDoYouWant
                 linesToDisplay.Add($"* {recipe.RecipeName} - {learnedPrefix}{recipe.RecipeIngredients}{ModEntry.LineBreak}");
             }
 
-            modInstance.ShowLines(linesToDisplay, title: ModEntry.Title_Cooking, longLinesExpected: true);
+            modInstance.ShowLines(linesToDisplay, title: ModEntry.GetTitle_Cooking(), longLinesExpected: true);
         }
     }
 }

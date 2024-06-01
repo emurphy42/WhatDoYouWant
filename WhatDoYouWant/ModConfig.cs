@@ -1,5 +1,4 @@
-﻿using StardewModdingAPI;
-using StardewModdingAPI.Utilities;
+﻿using StardewModdingAPI.Utilities;
 
 namespace WhatDoYouWant
 {
@@ -25,12 +24,14 @@ namespace WhatDoYouWant
 
         // TODO Master Angler
 
-        // TODO A Complete Collection
+        // A Complete Collection
 
         public string MuseumSortOrder = Museum.SortOrder_Type;
 
         // TODO Stardrops
 
-        // TDOO Polyculture
+        // Polyculture
+
+        public string PolycultureSortOrder = Polyculture.SortOrder_SeasonsSpringFirst;
     }
 }

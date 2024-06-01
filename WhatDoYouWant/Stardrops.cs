@@ -39,12 +39,12 @@ namespace WhatDoYouWant
 
             if (linesToDisplay.Count == 0)
             {
-                var completeDescription = modInstance.Helper.Translation.Get("Stardrop_Complete", new { title = ModEntry.Title_Stardrops });
+                var completeDescription = modInstance.Helper.Translation.Get("Stardrop_Complete", new { title = modInstance.GetTitle_Stardrops() });
                 Game1.drawDialogueNoTyping(completeDescription);
                 return;
             }
 
-            modInstance.ShowLines(linesToDisplay, title: ModEntry.Title_Stardrops);
+            modInstance.ShowLines(linesToDisplay, title: modInstance.GetTitle_Stardrops());
         }
     }
 }

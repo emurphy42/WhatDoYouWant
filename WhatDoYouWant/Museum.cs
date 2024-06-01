@@ -91,12 +91,12 @@ namespace WhatDoYouWant
 
             if (linesToDisplay.Count == 0)
             {
-                var completeDescription = modInstance.Helper.Translation.Get("Museum_Complete", new { title = ModEntry.Title_Museum });
+                var completeDescription = modInstance.Helper.Translation.Get("Museum_Complete", new { title = ModEntry.GetTitle_Museum() });
                 Game1.drawDialogueNoTyping(completeDescription);
                 return;
             }
 
-            modInstance.ShowLines(linesToDisplay, title: ModEntry.Title_Museum);
+            modInstance.ShowLines(linesToDisplay, title: ModEntry.GetTitle_Museum());
         }
 
     }

@@ -1,7 +1,6 @@
 ﻿using GenericModConfigMenu;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 
@@ -22,15 +21,17 @@ namespace WhatDoYouWant
         private const string ResponseToken_Polyculture = "Polyculture";
         private const string ResponseToken_Cancel = "Cancel";
 
-        public const string Title_CommunityCenter = "Community Center"; // TODO replace these with functions pulling them from base game content
-        public const string Title_Walnuts = "Golden Walnuts";
-        public const string Title_Shipping = "Full Shipment";
-        public const string Title_Cooking = "Gourmet Chef";
-        public const string Title_Crafting = "Craft Master";
-        public const string Title_Fishing = "Master Angler";
-        public const string Title_Museum = "A Complete Collection";
-        public const string Title_Stardrops = "Stardrops";
-        public const string Title_Polyculture = "Polyculture";
+        private const int AchievementID_Shipping = 34;
+        private const int AchievementID_Cooking = 17;
+        private const int AchievementID_Crafting = 22;
+        private const int AchievementID_Fishing = 26;
+        private const int AchievementID_Museum = 5;
+        private const int AchievementID_Polyculture = 31;
+
+        // Used by Community Center and GetIngredientText()
+        public const string StringKey_AnyMilk = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.573";
+        public const string StringKey_AnyEgg = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.572";
+        public const string StringKey_AnyFish = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.571";
 
         // Used by Polyculture, will also be used by Master Angler if/when season logic is added
         public static readonly List<Season> seasons = new()
@@ -40,6 +41,56 @@ namespace WhatDoYouWant
             Season.Fall,
             Season.Winter
         };
+
+        private static string GetAchievementTitle(int achievementId)
+        {
+            // array elements: e.g. "A Complete Collection^Complete the museum collection.^true^28^0"
+            return Game1.achievements[achievementId].Split(LineBreak)[0];
+        }
+
+        public static string GetTitle_CommunityCenter()
+        {
+            return Game1.content.LoadString("Strings\\UI:GameMenu_JunimoNote_Hover");
+        }
+
+        public string GetTitle_Walnuts() {
+            return Helper.Translation.Get("Menu_Walnuts");
+        }
+
+        public static string GetTitle_Shipping()
+        {
+            return GetAchievementTitle(AchievementID_Shipping);
+        }
+
+        public static string GetTitle_Cooking()
+        {
+            return GetAchievementTitle(AchievementID_Cooking);
+        }
+
+        public static string GetTitle_Crafting()
+        {
+            return GetAchievementTitle(AchievementID_Crafting);
+        }
+
+        public static string GetTitle_Fishing()
+        {
+            return GetAchievementTitle(AchievementID_Fishing);
+        }
+
+        public static string GetTitle_Museum()
+        {
+            return GetAchievementTitle(AchievementID_Museum);
+        }
+
+        public string GetTitle_Stardrops()
+        {
+            return Helper.Translation.Get("Menu_Stardrops");
+        }
+
+        public static string GetTitle_Polyculture()
+        {
+            return GetAchievementTitle(AchievementID_Polyculture);
+        }
 
         public ModConfig Config = new();
 
@@ -123,7 +174,7 @@ namespace WhatDoYouWant
 
             // TODO Master Angler
 
-            // TODO A Complete Collection
+            // A Complete Collection
 
             configMenu.AddTextOption(
                 mod: this.ModManifest,
@@ -140,7 +191,21 @@ namespace WhatDoYouWant
 
             // TODO Stardrops
 
-            // TDOO Polyculture
+            // Polyculture
+
+            configMenu.AddTextOption(
+                mod: this.ModManifest,
+                getValue: () => this.Config.PolycultureSortOrder,
+                setValue: value => this.Config.PolycultureSortOrder = value,
+                name: () => Helper.Translation.Get("Options_PolycultureSortOrder"),
+                allowedValues: new string[] {
+                    Polyculture.SortOrder_SeasonsSpringFirst,
+                    Polyculture.SortOrder_SeasonsCurrentFirst,
+                    Polyculture.SortOrder_CropName,
+                    Polyculture.SortOrder_NumberNeeded
+                },
+                formatAllowedValue: value => Helper.Translation.Get($"Options_PolycultureSortOrder_{value}")
+            );
         }
 
         private void ButtonsChanged(object? _sender, ButtonsChangedEventArgs _e)
@@ -159,15 +224,15 @@ namespace WhatDoYouWant
             //   * CC if already completed or bought Joja membership
             //   * walnuts if island not yet unlocked
             List<Response> responseList = new();
-            responseList.Add(new Response(responseKey: ResponseToken_CommunityCenter, responseText: Title_CommunityCenter));
-            responseList.Add(new Response(responseKey: ResponseToken_Walnuts, responseText: Title_Walnuts));
-            responseList.Add(new Response(responseKey: ResponseToken_Shipping, responseText: Title_Shipping));
-            responseList.Add(new Response(responseKey: ResponseToken_Cooking, responseText: Title_Cooking));
-            responseList.Add(new Response(responseKey: ResponseToken_Crafting, responseText: Title_Crafting));
-            responseList.Add(new Response(responseKey: ResponseToken_Fishing, responseText: Title_Fishing));
-            responseList.Add(new Response(responseKey: ResponseToken_Museum, responseText: Title_Museum));
-            responseList.Add(new Response(responseKey: ResponseToken_Stardrops, responseText: Title_Stardrops));
-            responseList.Add(new Response(responseKey: ResponseToken_Polyculture, responseText: Title_Polyculture));
+            responseList.Add(new Response(responseKey: ResponseToken_CommunityCenter, responseText: GetTitle_CommunityCenter()));
+            responseList.Add(new Response(responseKey: ResponseToken_Walnuts, responseText: GetTitle_Walnuts()));
+            responseList.Add(new Response(responseKey: ResponseToken_Shipping, responseText: GetTitle_Shipping()));
+            responseList.Add(new Response(responseKey: ResponseToken_Cooking, responseText: GetTitle_Cooking()));
+            responseList.Add(new Response(responseKey: ResponseToken_Crafting, responseText: GetTitle_Crafting()));
+            responseList.Add(new Response(responseKey: ResponseToken_Fishing, responseText: GetTitle_Fishing()));
+            responseList.Add(new Response(responseKey: ResponseToken_Museum, responseText: GetTitle_Museum()));
+            responseList.Add(new Response(responseKey: ResponseToken_Stardrops, responseText: GetTitle_Stardrops()));
+            responseList.Add(new Response(responseKey: ResponseToken_Polyculture, responseText: GetTitle_Polyculture()));
             responseList.Add(new Response(responseKey: ResponseToken_Cancel, responseText: "(" + Helper.Translation.Get("Menu_Cancel") + ")"));
             Game1.currentLocation.createQuestionDialogue(
               question: Helper.Translation.Get("Menu_Question"),
@@ -227,13 +292,13 @@ namespace WhatDoYouWant
                 switch (ingredientId)
                 {
                     case Cooking.CookingIngredient_AnyMilk:
-                        ingredientName = "Milk (any)"; // TODO i18n
+                        ingredientName = Game1.content.LoadString(StringKey_AnyMilk);
                         break;
                     case Cooking.CookingIngredient_AnyEgg:
-                        ingredientName = "Egg (any)";
+                        ingredientName = Game1.content.LoadString(StringKey_AnyEgg);
                         break;
                     case Cooking.CookingIngredient_AnyFish:
-                        ingredientName = "Fish (any)";
+                        ingredientName = Game1.content.LoadString(StringKey_AnyFish);
                         break;
                     default:
                         var ingredientDataOrErrorItem = ItemRegistry.GetDataOrErrorItem(ingredientId);

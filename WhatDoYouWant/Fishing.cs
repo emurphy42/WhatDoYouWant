@@ -41,12 +41,12 @@ namespace WhatDoYouWant
 
             if (linesToDisplay.Count == 0)
             {
-                var completeDescription = modInstance.Helper.Translation.Get("Fishing_Complete", new { title = ModEntry.Title_Fishing });
+                var completeDescription = modInstance.Helper.Translation.Get("Fishing_Complete", new { title = ModEntry.GetTitle_Fishing() });
                 Game1.drawDialogueNoTyping(completeDescription);
                 return;
             }
 
-            modInstance.ShowLines(linesToDisplay, title: ModEntry.Title_Fishing);
+            modInstance.ShowLines(linesToDisplay, title: ModEntry.GetTitle_Fishing());
         }
     }
 }

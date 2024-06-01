@@ -90,7 +90,7 @@ namespace WhatDoYouWant
             var linesToDisplay = new List<string>();
 
             // adapted from base game logic for hints in Leo's hut
-            //   TODO sort by area
+            //   TODO sort options: area / hint, hint
             //   TODO option to provide more detail (see Stardew Checker source)
             //   TODO option to omit areas not yet unlocked, otherwise identify them as such
             var hintDictionary = new Dictionary<string, int>();
@@ -142,7 +142,7 @@ namespace WhatDoYouWant
                 string hintText;
                 if (hint.Key == "none")
                 {
-                    hintText = "Other";
+                    hintText = "???";
                 }
                 else
                 {
@@ -161,12 +161,12 @@ namespace WhatDoYouWant
 
             if (linesToDisplay.Count == 0)
             {
-                var completeDescription = modInstance.Helper.Translation.Get("Walnuts_Complete", new { title = ModEntry.Title_Walnuts });
+                var completeDescription = modInstance.Helper.Translation.Get("Walnuts_Complete", new { title = modInstance.GetTitle_Walnuts() });
                 Game1.drawDialogueNoTyping(completeDescription);
                 return;
             }
 
-            modInstance.ShowLines(linesToDisplay, title: ModEntry.Title_Walnuts);
+            modInstance.ShowLines(linesToDisplay, title: modInstance.GetTitle_Walnuts());
         }
 
     }

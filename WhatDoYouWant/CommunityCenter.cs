@@ -14,7 +14,7 @@ namespace WhatDoYouWant
 
             var moreOptionsThanSlots = modInstance.Helper.Translation.Get("CommunityCenter_MoreOptionsThanSlots");
 
-            var completeDescription = modInstance.Helper.Translation.Get("CommunityCenter_Complete", new { title = ModEntry.Title_CommunityCenter });
+            var completeDescription = modInstance.Helper.Translation.Get("CommunityCenter_Complete", new { title = ModEntry.GetTitle_CommunityCenter() });
 
             var linesToDisplay = new List<string>();
 
@@ -98,13 +98,13 @@ namespace WhatDoYouWant
                             itemDescription = $"{itemQuantityNeeded}g";
                             break;
                         case Cooking.CookingIngredient_AnyMilk:
-                            itemDescription = Game1.content.LoadString("Strings\\StringsFromCSFiles:CraftingRecipe.cs.573");
+                            itemDescription = Game1.content.LoadString(ModEntry.StringKey_AnyMilk);
                             break;
                         case Cooking.CookingIngredient_AnyEgg:
-                            itemDescription = Game1.content.LoadString("Strings\\StringsFromCSFiles:CraftingRecipe.cs.572");
+                            itemDescription = Game1.content.LoadString(ModEntry.StringKey_AnyEgg);
                             break;
                         case Cooking.CookingIngredient_AnyFish:
-                            itemDescription = Game1.content.LoadString("Strings\\StringsFromCSFiles:CraftingRecipe.cs.571");
+                            itemDescription = Game1.content.LoadString(ModEntry.StringKey_AnyFish);
                             break;
                         default:
                             var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(itemId);
@@ -161,7 +161,7 @@ namespace WhatDoYouWant
                 return;
             }
 
-            modInstance.ShowLines(linesToDisplay, title: ModEntry.Title_CommunityCenter, longerLinesExpected: true);
+            modInstance.ShowLines(linesToDisplay, title: ModEntry.GetTitle_CommunityCenter(), longerLinesExpected: true);
         }
     }
 }

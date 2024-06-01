@@ -62,7 +62,7 @@ namespace WhatDoYouWant
 
             if (recipeList.Count == 0)
             {
-                var completeDescription = modInstance.Helper.Translation.Get("Crafting_Complete", new { title = ModEntry.Title_Crafting });
+                var completeDescription = modInstance.Helper.Translation.Get("Crafting_Complete", new { title = ModEntry.GetTitle_Crafting() });
                 Game1.drawDialogueNoTyping(completeDescription);
                 return;
             }
@@ -84,7 +84,7 @@ namespace WhatDoYouWant
                 linesToDisplay.Add($"* {recipe.RecipeName} - {learnedPrefix}{recipe.RecipeIngredients}{ModEntry.LineBreak}");
             }
 
-            modInstance.ShowLines(linesToDisplay, title: ModEntry.Title_Crafting, longLinesExpected: true);
+            modInstance.ShowLines(linesToDisplay, title: ModEntry.GetTitle_Crafting(), longLinesExpected: true);
         }
 
     }

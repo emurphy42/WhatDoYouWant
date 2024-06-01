@@ -2,6 +2,9 @@
   // General
 
   "Menu_Question": "Show items still needed for...",
+  "Menu_Walnuts": "Golden Walnuts",
+  "Menu_Stardrops": "Stardrops",
+  // other menu items pull titles from base game data
   "Menu_Cancel": "Cancel",
 
   "Response_NotYetImplemented": "Not yet implemented",
@@ -77,6 +80,12 @@
 
   // Polyculture
 
-  "Polyculture_Crop": "{{season}} - {{crop}} - ship {{number}}",
-  "Polyculture_Complete": "{{title}} is complete!"
+  "Polyculture_NumberNeeded": "ship {{number}} more",
+  "Polyculture_Complete": "{{title}} is complete!",
+
+  "Options_PolycultureSortOrder": "Sort order - Polyculture",
+  "Options_PolycultureSortOrder_SeasonsSpringFirst": "Season(s), spring first",
+  "Options_PolycultureSortOrder_SeasonsCurrentFirst": "Season(s), current first",
+  "Options_PolycultureSortOrder_CropName": "Crop name",
+  "Options_PolycultureSortOrder_NumberNeeded": "Number needed"
 }

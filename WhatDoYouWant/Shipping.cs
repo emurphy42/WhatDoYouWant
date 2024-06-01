@@ -50,15 +50,16 @@ namespace WhatDoYouWant
                         // Add it to the list
                         var itemName = parsedItemData.DisplayName;
                         var categoryName = StardewValley.Object.GetCategoryDisplayName(parsedItemData.Category);
-                        if (!string.IsNullOrWhiteSpace(categoryName))
+                        if (string.IsNullOrWhiteSpace(categoryName))
                         {
-                            if (sortByItemName)
-                            {
-                                itemName = $"{itemName} - {categoryName}";
-                            } else
-                            {
-                                itemName = $"{categoryName} - {itemName}";
-                            }
+                            categoryName = "???";
+                        }
+                        if (sortByItemName)
+                        {
+                            itemName = $"{itemName} - {categoryName}";
+                        } else
+                        {
+                            itemName = $"{categoryName} - {itemName}";
                         }
                         linesToDisplay.Add($"* {itemName}{ModEntry.LineBreak}");
                         break;
@@ -67,12 +68,12 @@ namespace WhatDoYouWant
 
             if (linesToDisplay.Count == 0)
             {
-                var completeDescription = modInstance.Helper.Translation.Get("Shipping_Complete", new { title = ModEntry.Title_Shipping });
+                var completeDescription = modInstance.Helper.Translation.Get("Shipping_Complete", new { title = ModEntry.GetTitle_Shipping() });
                 Game1.drawDialogueNoTyping(completeDescription);
                 return;
             }
             
-            modInstance.ShowLines(linesToDisplay, title: ModEntry.Title_Shipping);
+            modInstance.ShowLines(linesToDisplay, title: ModEntry.GetTitle_Shipping());
         }
 
     }
