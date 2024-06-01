@@ -1,7 +1,5 @@
 ﻿using StardewValley;
 using StardewValley.Extensions;
-using StardewValley.ItemTypeDefinitions;
-using System.Runtime.CompilerServices;
 
 namespace WhatDoYouWant
 {

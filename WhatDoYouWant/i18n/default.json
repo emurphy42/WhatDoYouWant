@@ -11,6 +11,10 @@
 
   // Community Center
 
+  "CommunityCenter_Silver": "silver",
+  "CommunityCenter_Gold": "gold",
+  "CommunityCenter_Iridium": "iridium",
+  "CommunityCenter_MoreOptionsThanSlots": "of", // e.g. Exotic Foraging: "5 of Coconut, Cactus Fruit, ..."
   "CommunityCenter_Complete": "{{title}} is complete!",
 
   // Golden Walnuts
@@ -22,9 +26,9 @@
   "Shipping_Complete": "{{title}} is complete!",
 
   "Options_ShippingSortOrder": "Full Shipment sort order",
-  "Options_ShippingSortOrder_CollectionsTab": "Similar to Collections tab",
   "Options_ShippingSortOrder_Category": "Category",
   "Options_ShippingSortOrder_ItemName": "Item name",
+  "Options_ShippingSortOrder_CollectionsTab": "Based on Collections tab",
 
   // Gourmet Chef
 

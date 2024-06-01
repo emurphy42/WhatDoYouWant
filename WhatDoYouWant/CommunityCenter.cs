@@ -8,11 +8,18 @@ namespace WhatDoYouWant
 
         public static void ShowCommunityCenterList(ModEntry modInstance)
         {
+            var qualitySilver = modInstance.Helper.Translation.Get("CommunityCenter_Silver");
+            var qualityGold = modInstance.Helper.Translation.Get("CommunityCenter_Gold");
+            var qualityIridium = modInstance.Helper.Translation.Get("CommunityCenter_Iridium");
+
+            var moreOptionsThanSlots = modInstance.Helper.Translation.Get("CommunityCenter_MoreOptionsThanSlots");
+
+            var completeDescription = modInstance.Helper.Translation.Get("CommunityCenter_Complete", new { title = ModEntry.Title_CommunityCenter });
+
             var linesToDisplay = new List<string>();
 
             if (Game1.player.mailReceived.Contains("ccIsComplete"))
             {
-                var completeDescription = modInstance.Helper.Translation.Get("CommunityCenter_Complete", new { title = ModEntry.Title_CommunityCenter });
                 Game1.drawDialogueNoTyping(completeDescription);
                 return;
             }
@@ -91,13 +98,13 @@ namespace WhatDoYouWant
                             itemDescription = $"{itemQuantityNeeded}g";
                             break;
                         case Cooking.CookingIngredient_AnyMilk:
-                            itemDescription = "Milk (any)"; // TODO i18n
+                            itemDescription = Game1.content.LoadString("Strings\\StringsFromCSFiles:CraftingRecipe.cs.573");
                             break;
                         case Cooking.CookingIngredient_AnyEgg:
-                            itemDescription = "Egg (any)";
+                            itemDescription = Game1.content.LoadString("Strings\\StringsFromCSFiles:CraftingRecipe.cs.572");
                             break;
                         case Cooking.CookingIngredient_AnyFish:
-                            itemDescription = "Fish (any)";
+                            itemDescription = Game1.content.LoadString("Strings\\StringsFromCSFiles:CraftingRecipe.cs.571");
                             break;
                         default:
                             var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(itemId);
@@ -113,14 +120,14 @@ namespace WhatDoYouWant
                         switch (minimumQuality)
                         {
                             case 1:
-                                itemDescription += " (silver)"; // TODO i18n
+                                itemDescription += $" ({qualitySilver})";
                                 break;
                             case 2:
-                                itemDescription += " (gold)";
+                                itemDescription += $" ({qualityGold})";
                                 break;
                             case 3:
                             case 4:
-                                itemDescription += " (iridium)";
+                                itemDescription += $" ({qualityIridium})";
                                 break;
                         }
                     }
@@ -136,21 +143,20 @@ namespace WhatDoYouWant
                     continue;
                 }
                 var areaName = bundleAreas[bundleId];
-                var bundleName = bundleNames[bundleId];
+                var bundleName = Game1.content.LoadString("Strings\\UI:JunimoNote_BundleName", bundleNames[bundleId]);
                 var bundleSlotPrefix = "";
                 if (bundleSlotsNeeded[bundleId] != 0 && bundleSlotsNeeded[bundleId] != bundleOptions[bundleId])
                 {
                     var numberOptionsAlreadyDonated = bundleOptions[bundleId] - bundleItems[bundleId].Count;
                     var bundleSlotsShort = bundleSlotsNeeded[bundleId] - numberOptionsAlreadyDonated;
-                    bundleSlotPrefix = $"{bundleSlotsShort} of "; // TODO i18n
+                    bundleSlotPrefix = $"{bundleSlotsShort} {moreOptionsThanSlots} ";
                 }
                 var bundleItemList = String.Join(", ", bundleItems[bundleId]);
-                linesToDisplay.Add($"* {areaName} - {bundleName} Bundle - {bundleSlotPrefix}{bundleItemList}{ModEntry.LineBreak}"); // TODO i18n
+                linesToDisplay.Add($"* {areaName} - {bundleName} - {bundleSlotPrefix}{bundleItemList}{ModEntry.LineBreak}");
             }
 
             if (linesToDisplay.Count == 0)
             {
-                var completeDescription = modInstance.Helper.Translation.Get("CommunityCenter_Complete", new { title = ModEntry.Title_CommunityCenter });
                 Game1.drawDialogueNoTyping(completeDescription);
                 return;
             }
