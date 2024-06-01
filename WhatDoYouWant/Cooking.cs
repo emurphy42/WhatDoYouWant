@@ -41,10 +41,9 @@ namespace WhatDoYouWant
 
                 // TODO parse unlock conditions
 
-                var ingredients = ArgUtility.Get(keyValuePair.Value.Split('/'), 0);
-                var ingredientText = ModEntry.GetIngredientText(ingredients);
-
                 var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(key2);
+
+                var ingredients = ArgUtility.Get(keyValuePair.Value.Split('/'), 0);
 
                 recipeList.Add(new RecipeData()
                 {

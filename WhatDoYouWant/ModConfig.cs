@@ -15,7 +15,7 @@ namespace WhatDoYouWant
 
         public string CookingSortOrder = Cooking.SortOrder_KnownRecipesFirst;
 
-        // TODO crafting options
+        public string CraftingSortOrder = Crafting.SortOrder_KnownRecipesFirst;
 
         // TODO fishing options
 

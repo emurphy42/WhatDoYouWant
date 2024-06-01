@@ -42,7 +42,13 @@
 
   // Craft Master
 
+  "Crafting_NotYetLearned": "not yet learned",
   "Crafting_Complete": "{{title}} is complete!",
+
+  "Options_CraftingSortOrder": "Craft Master sort order",
+  "Options_CraftingSortOrder_KnownRecipesFirst": "Known recipes first",
+  "Options_CraftingSortOrder_RecipeName": "Recipe name",
+  "Options_CraftingSortOrder_CraftingMenu": "Based on Crafting menu",
 
   // Master Angler
 

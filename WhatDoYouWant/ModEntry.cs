@@ -72,9 +72,11 @@ namespace WhatDoYouWant
                 name: () => Helper.Translation.Get("Options_OpenMenuKey")
             );
 
-            // TODO CC options
+            // TODO Community Center
 
-            // TODO walnut options
+            // TODO Golden Walnuts
+
+            // Full Shipment
 
             configMenu.AddTextOption(
                 mod: this.ModManifest,
@@ -89,6 +91,8 @@ namespace WhatDoYouWant
                 formatAllowedValue: value => Helper.Translation.Get($"Options_ShippingSortOrder_{value}")
             );
 
+            // Gourmet Chef
+
             configMenu.AddTextOption(
                 mod: this.ModManifest,
                 getValue: () => this.Config.CookingSortOrder,
@@ -102,15 +106,28 @@ namespace WhatDoYouWant
                 formatAllowedValue: value => Helper.Translation.Get($"Options_CookingSortOrder_{value}")
             );
 
-            // TODO crafting options
+            // Craft Master
 
-            // TODO fishing options
+            configMenu.AddTextOption(
+                mod: this.ModManifest,
+                getValue: () => this.Config.CraftingSortOrder,
+                setValue: value => this.Config.CraftingSortOrder = value,
+                name: () => Helper.Translation.Get("Options_CraftingSortOrder"),
+                allowedValues: new string[] {
+                    Crafting.SortOrder_KnownRecipesFirst,
+                    Crafting.SortOrder_RecipeName,
+                    Crafting.SortOrder_CraftingMenu
+                },
+                formatAllowedValue: value => Helper.Translation.Get($"Options_CraftingSortOrder_{value}")
+            );
 
-            // TODO museum options
+            // TODO Master Angler
 
-            // TODO stardrop options
+            // TODO A Complete Collection
 
-            // TDOO polyculture options
+            // TODO Stardrops
+
+            // TDOO Polyculture
         }
 
         private void ButtonsChanged(object? _sender, ButtonsChangedEventArgs _e)
