@@ -12,6 +12,8 @@
 
   "Options_OpenMenuKey": "Open menu key",
 
+  "AllSeasons": "All seasons",
+
   // Community Center
 
   "CommunityCenter_Silver": "silver",
@@ -57,6 +59,12 @@
 
   "Fishing_Fish": "{{fish}}",
   "Fishing_Complete": "{{title}} is complete!",
+
+  "Options_FishingSortOrder": "Sort order - Master Angler",
+  "Options_FishingSortOrder_SeasonsSpringFirst": "Season(s), spring first",
+  "Options_FishingSortOrder_SeasonsCurrentFirst": "Season(s), current first",
+  "Options_FishingSortOrder_FishName": "Fish name",
+  "Options_FishingSortOrder_CollectionsTab": "Based on Collections tab",
 
   // A Complete Collection
 

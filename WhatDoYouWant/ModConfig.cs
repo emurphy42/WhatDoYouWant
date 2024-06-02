@@ -22,7 +22,9 @@ namespace WhatDoYouWant
 
         public string CraftingSortOrder = Crafting.SortOrder_KnownRecipesFirst;
 
-        // TODO Master Angler
+        // Master Angler
+
+        public string FishingSortOrder = Fishing.SortOrder_SeasonsSpringFirst;
 
         // A Complete Collection
 

@@ -20,23 +20,6 @@ namespace WhatDoYouWant
         public const string SortOrder_CropName = "CropName";
         public const string SortOrder_NumberNeeded = "NumberNeeded";
 
-        private static Season GetNextSeason(Season season)
-        {
-            switch (season)
-            {
-                case Season.Spring:
-                    return Season.Summer;
-                case Season.Summer:
-                    return Season.Fall;
-                case Season.Fall:
-                    return Season.Winter;
-                case Season.Winter:
-                    return Season.Spring;
-                default: // should never happen
-                    return Season.Spring;
-            }
-        }
-
         public static void ShowPolycultureList(ModEntry modInstance)
         {
             var sortBySeasonsSpringFirst = (modInstance.Config.PolycultureSortOrder == SortOrder_SeasonsSpringFirst);
@@ -44,17 +27,7 @@ namespace WhatDoYouWant
             var sortByCropName = (modInstance.Config.PolycultureSortOrder == SortOrder_CropName);
             var sortByNumberNeeded = (modInstance.Config.PolycultureSortOrder == SortOrder_NumberNeeded);
 
-            var seasonsCurrentFirst = new List<Season>();
-            if (sortBySeasonsCurrentFirst)
-            {
-                var season = Game1.season;
-                seasonsCurrentFirst.Add(season);
-                for (int i = 1; i <= 3; ++i)
-                {
-                    season = GetNextSeason(season);
-                    seasonsCurrentFirst.Add(season);
-                }
-            }
+            var seasonsSortOrderList = ModEntry.GetSeasons(currentFirst: sortBySeasonsCurrentFirst);
 
             // adapted from base game logic to award Polyculure achievement
             var PolycultureCropList = new List<PolycultureCropData>();
@@ -75,38 +48,12 @@ namespace WhatDoYouWant
 
                 // Add it to the list
 
-                var seasonsList = new List<string>();
-                foreach (var season in ModEntry.seasons)
-                {
-                    if (cropData.Seasons.Contains(season))
-                    {
-                        seasonsList.Add(Utility.getSeasonNameFromNumber((int)season));
-                    }
-                }
-
-                // Sort by first season in which it grows, break ties in favor of single-season crops
-                //   e.g. spring first: Parsnip (Spring -> 10) is ahead of Coffee (Spring, Summer -> 11), which is ahead of Blueberry (Summer -> 12)
-                var seasonsSortOrder = 0;
-                var seasonsSortOrderList = sortBySeasonsCurrentFirst ? seasonsCurrentFirst : ModEntry.seasons;
-                for (var seasonIndex = 0; seasonIndex < 4; ++seasonIndex)
-                {
-                    if (cropData.Seasons.Contains(seasonsSortOrderList[seasonIndex]))
-                    {
-                        seasonsSortOrder += 2 * seasonIndex + 8;
-                        break;
-                    }
-                }
-                if (cropData.Seasons.Count > 1)
-                {
-                    ++seasonsSortOrder;
-                }
-
                 var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(cropData.HarvestItemId);
 
                 PolycultureCropList.Add(new PolycultureCropData()
                 {
-                    Seasons = String.Join(", ", seasonsList),
-                    SeasonsSortOrder = seasonsSortOrder,
+                    Seasons = modInstance.GetSeasonsDescription(cropData.Seasons, seasonsSortOrderList: seasonsSortOrderList),
+                    SeasonsSortOrder = ModEntry.GetSeasonsSortOrder(cropData.Seasons, seasonsSortOrderList: seasonsSortOrderList),
                     CropName = dataOrErrorItem.DisplayName,
                     NumberNeeded = NumberShippedForPolyculture - numberShipped
                 });

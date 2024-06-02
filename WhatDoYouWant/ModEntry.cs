@@ -3,6 +3,8 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
+using StardewValley.GameData.Crops;
+using StardewValley.GameData.Shops;
 
 namespace WhatDoYouWant
 {
@@ -33,7 +35,8 @@ namespace WhatDoYouWant
         public const string StringKey_AnyEgg = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.572";
         public const string StringKey_AnyFish = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.571";
 
-        // Used by Polyculture, will also be used by Master Angler if/when season logic is added
+        // Season logic used by Master Angler and Polyculture
+
         public static readonly List<Season> seasons = new()
         {
             Season.Spring,
@@ -41,6 +44,91 @@ namespace WhatDoYouWant
             Season.Fall,
             Season.Winter
         };
+
+        private static Season GetNextSeason(Season season)
+        {
+            switch (season)
+            {
+                case Season.Spring:
+                    return Season.Summer;
+                case Season.Summer:
+                    return Season.Fall;
+                case Season.Fall:
+                    return Season.Winter;
+                case Season.Winter:
+                    return Season.Spring;
+                default: // should never happen
+                    return Season.Spring;
+            }
+        }
+
+        public static List<Season> GetSeasons(bool currentFirst = false)
+        {
+            if (!currentFirst)
+            {
+                return seasons;
+            }
+
+            var seasonsCurrentFirst = new List<Season>();
+            var season = Game1.season;
+            seasonsCurrentFirst.Add(season);
+            for (int i = 1; i <= 3; ++i)
+            {
+                season = GetNextSeason(season);
+                seasonsCurrentFirst.Add(season);
+            }
+            return seasonsCurrentFirst;
+        }
+
+        public string GetSeasonsDescription(List<Season> seasons, List<Season> seasonsSortOrderList)
+        {
+            if (seasons.Count == 4)
+            {
+                return Helper.Translation.Get("AllSeasons");
+            }
+            var seasonsList = new List<string>();
+            foreach (var season in seasonsSortOrderList)
+            {
+                if (seasons.Contains(season))
+                {
+                    seasonsList.Add(Utility.getSeasonNameFromNumber((int)season));
+                }
+            }
+            return String.Join(", ", seasonsList);
+        }
+
+        public static int GetSeasonsSortOrder(List<Season> seasons, List<Season> seasonsSortOrderList)
+        {
+            // Prioritize by what's available soonest, break ties by length of wait if a season is missed
+            //   e.g. Polyculture, spring first: Parsnip (Spring) is ahead of Coffee (Spring, Summer), which is ahead of Blueberry (Summer)
+            var sortOrderBits = 0;
+            for (var seasonIndex = 0; seasonIndex < 4; ++seasonIndex)
+            {
+                if (seasons.Contains(seasonsSortOrderList[seasonIndex]))
+                {
+                    sortOrderBits += 1 << (3 - seasonIndex);
+                }
+            }
+            switch (sortOrderBits)
+            {
+                case 8: return 1; // 1000
+                case 9: return 2; // 1001
+                case 10: return 3; // 1010
+                case 11: return 4; // 1011
+                case 12: return 5; // 1100
+                case 13: return 6; // 1101
+                case 14: return 7; // 1110
+                case 15: return 8; // 1111
+                case 4: return 9; // 0100
+                case 5: return 10; // 0101
+                case 6: return 11; // 0110
+                case 7: return 12; // 0111
+                case 2: return 13; // 0010
+                case 3: return 14; // 0011
+                case 1: return 15; // 0001
+                default: return 16; // 0000, i.e. we couldn't figure out seasons
+            }
+        }
 
         private static string GetAchievementTitle(int achievementId)
         {
@@ -172,7 +260,21 @@ namespace WhatDoYouWant
                 formatAllowedValue: value => Helper.Translation.Get($"Options_CraftingSortOrder_{value}")
             );
 
-            // TODO Master Angler
+            // Master Angler
+
+            configMenu.AddTextOption(
+                mod: this.ModManifest,
+                getValue: () => this.Config.FishingSortOrder,
+                setValue: value => this.Config.FishingSortOrder = value,
+                name: () => Helper.Translation.Get("Options_FishingSortOrder"),
+                allowedValues: new string[] {
+                    Fishing.SortOrder_SeasonsSpringFirst,
+                    Fishing.SortOrder_SeasonsCurrentFirst,
+                    Fishing.SortOrder_FishName,
+                    Fishing.SortOrder_CollectionsTab
+                },
+                formatAllowedValue: value => Helper.Translation.Get($"Options_FishingSortOrder_{value}")
+            );
 
             // A Complete Collection
 
