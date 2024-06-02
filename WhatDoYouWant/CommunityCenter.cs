@@ -6,6 +6,16 @@ namespace WhatDoYouWant
     {
         private const string CommunityCenter_Money = "-1";
 
+        private static readonly Dictionary<string, int> BundleAreas = new()
+        {
+            { "Pantry", 0 },
+            { "Crafts Room", 1 },
+            { "Fish Tank", 2 },
+            { "Boiler Room", 3 },
+            { "Vault", 4 },
+            { "Bulletin Board", 5 }
+        };
+
         public static void ShowCommunityCenterList(ModEntry modInstance)
         {
             var qualitySilver = modInstance.Helper.Translation.Get("CommunityCenter_Silver");
@@ -36,8 +46,8 @@ namespace WhatDoYouWant
             var bundleData = Game1.netWorldState.Value.BundleData;
             foreach (var keyValuePair in bundleData)
             {
-                // e.g. key = "Pantry/0", value = "Spring Crops/O 465 20/24 1 0 188 1 0 190 1 0 192 1 0/0"
-                // https://stardewvalleywiki.com/Modding:Bundles
+                // e.g. key = "Pantry/4", value = "Animal/BO 16 1/186 1 0 182 1 0 174 1 0 438 1 0 440 1 0 442 1 0/4/5//Animal"
+                //   bundle name / reward (type ID quantity) / options to donate (ID quantity minimum-quality) / color index / number of options needed / translated bundle name
                 var keyArray = keyValuePair.Key.Split('/');
 
                 var areaName = keyArray[0];
@@ -52,6 +62,9 @@ namespace WhatDoYouWant
                 //    continue;
                 //}
 
+                var areaId = StardewValley.Locations.CommunityCenter.getAreaNumberFromName(areaName);
+                var areaDisplayName = StardewValley.Locations.CommunityCenter.getAreaDisplayNameFromNumber(BundleAreas[areaName]);
+
                 var bundleId = Convert.ToInt32(keyArray[1]);
                 if (!bundleDictionary.ContainsKey(bundleId))
                 {
@@ -60,8 +73,8 @@ namespace WhatDoYouWant
 
                 var valueArray = keyValuePair.Value.Split('/');
 
-                bundleAreas[bundleId] = areaName;
-                bundleNames[bundleId] = valueArray[0];
+                bundleAreas[bundleId] = areaDisplayName;
+                bundleNames[bundleId] = (valueArray.Length > 6) ? valueArray[6] : valueArray[0];
                 bundleSlotsNeeded[bundleId] = 0;
                 if (valueArray.Length > 4 && Int32.TryParse(valueArray[4], out int slotsNeeded))
                 {
@@ -108,7 +121,7 @@ namespace WhatDoYouWant
                             break;
                         default:
                             var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(itemId);
-                            itemDescription = dataOrErrorItem.DisplayName; // TODO distinguish e.g. Large Egg (white) / Large Egg (brown), Smoked Fish (any)
+                            itemDescription = dataOrErrorItem.DisplayName; // TODO distinguish e.g. Large Egg (white) / Large Egg (brown), Smoked Fish (any), Dried (fruit vs mushrooms)
                             break;
                     }
                     if (itemId != CommunityCenter_Money)
