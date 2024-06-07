@@ -5,6 +5,7 @@ using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.GameData.Crops;
 using StardewValley.GameData.Shops;
+using System;
 
 namespace WhatDoYouWant
 {
@@ -408,8 +409,8 @@ namespace WhatDoYouWant
                         break;
                 }
 
-                var ingredientQuantity = ingredientList[index + 1];
-                if (ingredientQuantity != "1")
+                var ingredientQuantity = ArgUtility.GetInt(ingredientList, index + 1, 1);
+                if (ingredientQuantity != 1)
                 {
                     ingredientName += $" x{ingredientQuantity}";
                 }
