@@ -97,6 +97,10 @@ namespace WhatDoYouWant
             foreach (var location in Game1.locations)
             {
                 var locationData = location.GetData();
+                if (locationData == null)
+                {
+                    continue;
+                }
                 var locationFishList = locationData.Fish;
                 foreach (var locationFish in locationFishList)
                 {
