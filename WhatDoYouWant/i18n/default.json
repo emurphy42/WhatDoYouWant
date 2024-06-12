@@ -2,6 +2,7 @@
   // General
 
   "Menu_Question": "Show items still needed for...",
+  "Menu_GrandpasEvaluation": "Grandpa's Evaluation",
   "Menu_Walnuts": "Golden Walnuts",
   "Menu_Stardrops": "Stardrops",
   // other menu items pull titles from base game data
@@ -21,6 +22,31 @@
   "CommunityCenter_Iridium": "iridium",
   "CommunityCenter_MoreOptionsThanSlots": "of", // e.g. Exotic Foraging: "5 of Coconut, Cactus Fruit, ..."
   "CommunityCenter_Complete": "{{title}} is complete!",
+
+  // Grandpa's Evaluation
+
+  "GrandpasEvaluation_EarnFiftyThousand": "Earn 50,000g",
+  "GrandpasEvaluation_EarnOneHundredThousand": "Earn 100,000g",
+  "GrandpasEvaluation_EarnTwoHundredThousand": "Earn 200,000g",
+  "GrandpasEvaluation_EarnThreeHundredThousand": "Earn 300,000g",
+  "GrandpasEvaluation_EarnFiveHundredThousand": "Earn 500,000g",
+  "GrandpasEvaluation_EarnOneMillion": "Earn 1,000,000g",
+  "GrandpasEvaluation_PlayerLevel15": "Total of 30 levels in skills",
+  "GrandpasEvaluation_PlayerLevel25": "Total of 50 levels in skills",
+  "GrandpasEvaluation_AchievementMuseum": "Complete the museum collection",
+  "GrandpasEvaluation_AchievementFishing": "Catch every fish",
+  "GrandpasEvaluation_AchievementShipping": "Ship every item",
+  "GrandpasEvaluation_FriendshipMarriedTwoHouseUpgrades": "Married/roommate with two house upgrades",
+  "GrandpasEvaluation_FriendshipFiveFriends": "High friendship with five villagers",
+  "GrandpasEvaluation_FriendshipTenFriends": "High friendship with ten villagers",
+  "GrandpasEvaluation_FriendshipPet": "High friendship with pet",
+  "GrandpasEvaluation_CommunityCenterCompleted": "Community Center complete",
+  "GrandpasEvaluation_CommunityCenterAvailable": "Community Center ceremony",
+  "GrandpasEvaluation_SkullKey": "Skull Key",
+  "GrandpasEvaluation_RustyKey": "Rusty Key",
+  "GrandpasEvaluation_Complete": "You've done enough to ace {{title}}!",
+  "GrandpasEvaluation_Incomplete": "Your {{title}} score is {{totalScore}} (candles: {{numberCandles}})",
+  "GrandpasEvaluation_PointsNeededForCandles": "Total points needed for {{targetCandles}} candles: {{totalPointsNeeded}}",
 
   // Golden Walnuts
 

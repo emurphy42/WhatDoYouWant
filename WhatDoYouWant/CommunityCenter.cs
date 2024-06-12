@@ -18,21 +18,19 @@ namespace WhatDoYouWant
 
         public static void ShowCommunityCenterList(ModEntry modInstance)
         {
-            var qualitySilver = modInstance.Helper.Translation.Get("CommunityCenter_Silver");
-            var qualityGold = modInstance.Helper.Translation.Get("CommunityCenter_Gold");
-            var qualityIridium = modInstance.Helper.Translation.Get("CommunityCenter_Iridium");
-
-            var moreOptionsThanSlots = modInstance.Helper.Translation.Get("CommunityCenter_MoreOptionsThanSlots");
-
             var completeDescription = modInstance.Helper.Translation.Get("CommunityCenter_Complete", new { title = ModEntry.GetTitle_CommunityCenter() });
-
-            var linesToDisplay = new List<string>();
 
             if (Game1.player.mailReceived.Contains("ccIsComplete"))
             {
                 Game1.drawDialogueNoTyping(completeDescription);
                 return;
             }
+
+            var qualitySilver = modInstance.Helper.Translation.Get("CommunityCenter_Silver");
+            var qualityGold = modInstance.Helper.Translation.Get("CommunityCenter_Gold");
+            var qualityIridium = modInstance.Helper.Translation.Get("CommunityCenter_Iridium");
+
+            var moreOptionsThanSlots = modInstance.Helper.Translation.Get("CommunityCenter_MoreOptionsThanSlots");
 
             var bundleAreas = new Dictionary<int, string>();
             var bundleNames = new Dictionary<int, string>();
@@ -147,6 +145,8 @@ namespace WhatDoYouWant
                     bundleItems[bundleId].Add(itemDescription);
                 }
             }
+
+            var linesToDisplay = new List<string>();
 
             foreach (var keyValuePair in bundleItems.OrderBy(keyValuePair => keyValuePair.Key))
             {

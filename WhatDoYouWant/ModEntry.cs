@@ -3,9 +3,6 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
-using StardewValley.GameData.Crops;
-using StardewValley.GameData.Shops;
-using System;
 
 namespace WhatDoYouWant
 {
@@ -14,6 +11,7 @@ namespace WhatDoYouWant
         public const string LineBreak = "^";
 
         private const string ResponseToken_CommunityCenter = "CommunityCenter";
+        private const string ResponseToken_GrandpasEvaluation = "GrandpasEvaluation";
         private const string ResponseToken_Walnuts = "Walnuts";
         private const string ResponseToken_Shipping = "Shipping";
         private const string ResponseToken_Cooking = "Cooking";
@@ -24,12 +22,13 @@ namespace WhatDoYouWant
         private const string ResponseToken_Polyculture = "Polyculture";
         private const string ResponseToken_Cancel = "Cancel";
 
-        private const int AchievementID_Shipping = 34;
-        private const int AchievementID_Cooking = 17;
-        private const int AchievementID_Crafting = 22;
-        private const int AchievementID_Fishing = 26;
-        private const int AchievementID_Museum = 5;
-        private const int AchievementID_Polyculture = 31;
+        // Used by Grandpa's Evaluation and some GetTitle_*() functions
+        public const int AchievementID_Shipping = 34;
+        public const int AchievementID_Cooking = 17;
+        public const int AchievementID_Crafting = 22;
+        public const int AchievementID_Fishing = 26;
+        public const int AchievementID_Museum = 5;
+        public const int AchievementID_Polyculture = 31;
 
         // Used by Community Center and GetIngredientText()
         public const string StringKey_AnyMilk = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.573";
@@ -142,6 +141,11 @@ namespace WhatDoYouWant
             return Game1.content.LoadString("Strings\\UI:GameMenu_JunimoNote_Hover");
         }
 
+        public string GetTitle_GrandpasEvaluation()
+        {
+            return Helper.Translation.Get("Menu_GrandpasEvaluation");
+        }
+
         public string GetTitle_Walnuts() {
             return Helper.Translation.Get("Menu_Walnuts");
         }
@@ -213,6 +217,8 @@ namespace WhatDoYouWant
             );
 
             // TODO Community Center
+
+            // TODO Grandpa's Evaluation
 
             // TODO Golden Walnuts
 
@@ -328,6 +334,7 @@ namespace WhatDoYouWant
             //   * walnuts if island not yet unlocked
             List<Response> responseList = new();
             responseList.Add(new Response(responseKey: ResponseToken_CommunityCenter, responseText: GetTitle_CommunityCenter()));
+            responseList.Add(new Response(responseKey: ResponseToken_GrandpasEvaluation, responseText: GetTitle_GrandpasEvaluation()));
             responseList.Add(new Response(responseKey: ResponseToken_Walnuts, responseText: GetTitle_Walnuts()));
             responseList.Add(new Response(responseKey: ResponseToken_Shipping, responseText: GetTitle_Shipping()));
             responseList.Add(new Response(responseKey: ResponseToken_Cooking, responseText: GetTitle_Cooking()));
@@ -350,6 +357,9 @@ namespace WhatDoYouWant
             {
                 case ResponseToken_CommunityCenter:
                     CommunityCenter.ShowCommunityCenterList(modInstance: this);
+                    break;
+                case ResponseToken_GrandpasEvaluation:
+                    GrandpasEvaluation.ShowGrandpasEvaluationList(modInstance: this);
                     break;
                 case ResponseToken_Walnuts:
                     Walnuts.ShowWalnutsList(modInstance: this);
