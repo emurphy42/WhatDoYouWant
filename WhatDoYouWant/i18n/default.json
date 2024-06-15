@@ -22,6 +22,7 @@
   "CommunityCenter_Iridium": "iridium",
   "CommunityCenter_MoreOptionsThanSlots": "of", // e.g. Exotic Foraging: "5 of Coconut, Cactus Fruit, ..."
   "CommunityCenter_Complete": "{{title}} is complete!",
+  "CommunityCenter_Unavailable": "{{title}}? Oh, you mean the Joja Warehouse?",
 
   // Grandpa's Evaluation
 

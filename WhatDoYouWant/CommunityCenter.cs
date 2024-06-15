@@ -26,6 +26,13 @@ namespace WhatDoYouWant
                 return;
             }
 
+            if (Game1.player.hasOrWillReceiveMail("JojaMember"))
+            {
+                var unavailableDescription = modInstance.Helper.Translation.Get("CommunityCenter_Unavailable", new { title = ModEntry.GetTitle_CommunityCenter() });
+                Game1.drawDialogueNoTyping(unavailableDescription);
+                return;
+            }
+
             var qualitySilver = modInstance.Helper.Translation.Get("CommunityCenter_Silver");
             var qualityGold = modInstance.Helper.Translation.Get("CommunityCenter_Gold");
             var qualityIridium = modInstance.Helper.Translation.Get("CommunityCenter_Iridium");
