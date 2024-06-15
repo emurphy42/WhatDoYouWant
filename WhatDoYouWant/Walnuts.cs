@@ -16,7 +16,7 @@ namespace WhatDoYouWant
             // base game function name, token passed to it, hint text (Strings\\Locations:NutHint_*) or "none", [number of walnuts - 1 if not specified]
             new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_13_33", "VolcanoLava" },
             new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_5_30", "VolcanoLava" },
-            new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_19_39", "BuriedArch" },
+            new List<string>() { WalnutType_MissingTheseNuts, "Buried_IslandNorth_19_39", "BuriedArch" },
             new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_4_42", "NorthHidden" },
             new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_45_38", "NorthHidden" },
             new List<string>() { WalnutType_MissingTheseNuts, "Bush_IslandNorth_47_40", "NorthHidden" },
