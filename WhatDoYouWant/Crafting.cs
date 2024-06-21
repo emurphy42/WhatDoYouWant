@@ -10,9 +10,11 @@ namespace WhatDoYouWant
 
         public class RecipeData
         {
+            public string? RecipeKey { get; set; }
             public string? RecipeName { get; set; }
             public string? RecipeIngredients { get; set; }
             public bool RecipeLearned { get; set; }
+            public string? RecipeCondition { get; set; }
             public int OriginalSortOrder { get; set; }
         }
 
@@ -41,21 +43,22 @@ namespace WhatDoYouWant
 
                 // Add it to the list
 
-                // TODO parse unlock conditions
-
                 var isBigCraftable = ArgUtility.SplitBySpaceAndGet(ArgUtility.Get(keyValuePair.Value.Split('/'), 3), 0);
                 var itemPrefix = (isBigCraftable == "true") ? "(BC)" : "(O)";
                 var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(itemPrefix + key2);
                 
                 var ingredients = ArgUtility.Get(keyValuePair.Value.Split('/'), 0);
+                var condition = ArgUtility.Get(keyValuePair.Value.Split('/'), 4);
 
                 ++originalSortOrder;
 
                 recipeList.Add(new RecipeData()
                 {
+                    RecipeKey = key1,
                     RecipeName = dataOrErrorItem.DisplayName,
                     RecipeIngredients = ModEntry.GetIngredientText(ingredients),
                     RecipeLearned = recipeLearned,
+                    RecipeCondition = condition,
                     OriginalSortOrder = originalSortOrder
                 });
             }
@@ -71,7 +74,7 @@ namespace WhatDoYouWant
             var sortByRecipeName = (modInstance.Config.CraftingSortOrder == SortOrder_RecipeName);
             var sortByCraftingMenu = (modInstance.Config.CraftingSortOrder == SortOrder_CraftingMenu);
 
-            var notYetLearnedPrefix = modInstance.Helper.Translation.Get("Crafting_NotYetLearned") + " - ";
+            var notYetLearnedPrefix = modInstance.Helper.Translation.Get("Crafting_NotYetLearned");
 
             var linesToDisplay = new List<string>();
             foreach (var recipe in recipeList
@@ -80,11 +83,16 @@ namespace WhatDoYouWant
                 .ThenBy(entry => entry.RecipeName)
             )
             {
-                var learnedPrefix = recipe.RecipeLearned ? "" : notYetLearnedPrefix;
+                var learnedPrefix = "";
+                if (!recipe.RecipeLearned)
+                {
+                    var conditionDescription = modInstance.GetConditionDescription(recipe: recipe.RecipeKey, condition: recipe.RecipeCondition, isCooking: false);
+                    learnedPrefix = $"{notYetLearnedPrefix} ({conditionDescription}) - ";
+                }
                 linesToDisplay.Add($"* {recipe.RecipeName} - {learnedPrefix}{recipe.RecipeIngredients}{ModEntry.LineBreak}");
             }
 
-            modInstance.ShowLines(linesToDisplay, title: ModEntry.GetTitle_Crafting(), longLinesExpected: true);
+            modInstance.ShowLines(linesToDisplay, title: ModEntry.GetTitle_Crafting(), longerLinesExpected: true);
         }
 
     }

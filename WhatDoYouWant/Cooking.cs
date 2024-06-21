@@ -4,9 +4,11 @@ namespace WhatDoYouWant
 {
     internal class RecipeData
     {
+        public string? RecipeKey { get; set; }
         public string? RecipeName { get; set; }
         public string? RecipeIngredients { get; set; }
         public bool RecipeLearned { get; set; }
+        public string? RecipeCondition { get; set; }
         public string? TextureName { get; set; } // Collections Tab sort option
         public int SpriteIndex { get; set; } // Collections Tab sort option
     }
@@ -38,17 +40,18 @@ namespace WhatDoYouWant
                     continue;
                 }
 
-                // TODO parse unlock conditions
-
                 var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(key2);
 
                 var ingredients = ArgUtility.Get(keyValuePair.Value.Split('/'), 0);
+                var condition = ArgUtility.Get(keyValuePair.Value.Split('/'), 3);
 
                 recipeList.Add(new RecipeData()
                 {
+                    RecipeKey = key1,
                     RecipeName = dataOrErrorItem.DisplayName,
                     RecipeIngredients = ModEntry.GetIngredientText(ingredients),
                     RecipeLearned = recipeLearned,
+                    RecipeCondition = condition,
                     TextureName = dataOrErrorItem.TextureName,
                     SpriteIndex = dataOrErrorItem.SpriteIndex
                 });
@@ -65,7 +68,7 @@ namespace WhatDoYouWant
             var sortByRecipeName = (modInstance.Config.CookingSortOrder == SortOrder_RecipeName);
             var sortByCollectionsTab = (modInstance.Config.CookingSortOrder == SortOrder_CollectionsTab);
 
-            var notYetLearnedPrefix = modInstance.Helper.Translation.Get("Cooking_NotYetLearned") + " - ";
+            var notYetLearnedPrefix = modInstance.Helper.Translation.Get("Cooking_NotYetLearned");
 
             var linesToDisplay = new List<string>();
             foreach (var recipe in recipeList
@@ -75,11 +78,16 @@ namespace WhatDoYouWant
                 .ThenBy(entry => entry.RecipeName)
             )
             {
-                var learnedPrefix = recipe.RecipeLearned ? "" : notYetLearnedPrefix;
+                var learnedPrefix = "";
+                if (!recipe.RecipeLearned)
+                {
+                    var conditionDescription = modInstance.GetConditionDescription(recipe: recipe.RecipeKey, condition: recipe.RecipeCondition, isCooking: true);
+                    learnedPrefix = $"{notYetLearnedPrefix} ({conditionDescription}) - ";
+                }
                 linesToDisplay.Add($"* {recipe.RecipeName} - {learnedPrefix}{recipe.RecipeIngredients}{ModEntry.LineBreak}");
             }
 
-            modInstance.ShowLines(linesToDisplay, title: ModEntry.GetTitle_Cooking(), longLinesExpected: true);
+            modInstance.ShowLines(linesToDisplay, title: ModEntry.GetTitle_Cooking(), longerLinesExpected: true);
         }
     }
 }

@@ -77,7 +77,7 @@ namespace WhatDoYouWant
                 }
 
                 var dataOrErrorItem = ItemRegistry.GetDataOrErrorItem(qualifiedItemId);
-                var itemDescription = dataOrErrorItem.DisplayName; // TODO distinguish e.g. Ancient Doll (Y) / Ancient Doll (G)
+                var itemDescription = modInstance.GetItemDescription(dataOrErrorItem);
                 if (sortByItemName)
                 {
                     itemDescription = $"{itemDescription} - {itemType}";

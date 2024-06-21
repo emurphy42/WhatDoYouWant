@@ -21,79 +21,51 @@ namespace WhatDoYouWant
         public const string SortOrder_FishName = "FishName";
         public const string SortOrder_CollectionsTab = "CollectionsTab";
 
-        // Fish that can be caught in any season
-        private static readonly List<string> AllSeasonFish = new()
-        {
-            "(O)132", // Bream
-            "(O)136", // Largemouth Bass
-            "(O)152", // Seaweed
-            "(O)153", // Green Algae
-            "(O)156", // Ghostfish
-            "(O)157", // White Algae
-            "(O)158", // Stonefish
-            "(O)161", // Ice Pip
-            "(O)162", // Lava Eel
-            "(O)164", // Sandfish
-            "(O)165", // Scorpion Carp
-            "(O)372", // Clam
-            "(O)682", // Mutant Carp
-            "(O)700", // Bullhead
-            "(O)702", // Chub
-            "(O)715", // Lobster
-            "(O)716", // Crayfish
-            "(O)717", // Crab
-            "(O)718", // Cockle
-            "(O)719", // Mussel
-            "(O)720", // Shrimp
-            "(O)721", // Snail
-            "(O)722", // Periwinkle
-            "(O)723", // Oyster
-            "(O)734", // Woodskip
-            "(O)795", // Void Salmon
-            "(O)796", // Slimejack
-            "(O)836", // Stingray
-            "(O)837", // Lionfish
-            "(O)838", // Blue Discus
-            "(O)SeaJelly",
-            "(O)CaveJelly",
-            "(O)RiverJelly",
-            "(O)Goby"
-        };
-
-        // Fish that can be caught in limited seasons, and not recognized by GetSeason()
+        // Hardcoded data for fish that GetSeasonsByLocation() would get wrong
         private static readonly Dictionary<string, List<Season>> FishSeasons = new()
         {
-            { "(O)129", new List<Season> { Season.Spring, Season.Fall } }, // Anchovy
-            { "(O)130", new List<Season> { Season.Summer, Season.Winter } }, // Tuna
-            { "(O)131", new List<Season> { Season.Spring, Season.Fall, Season.Winter } }, // Sardine
-            { "(O)137", new List<Season> { Season.Spring, Season.Fall } }, // Smallmouth Bass
+            // also winter, but rain in winter requires rain totem
             { "(O)140", new List<Season> { Season.Fall } }, // Walleye
-            { "(O)142", new List<Season> { Season.Spring, Season.Summer, Season.Fall } }, // Carp
             { "(O)143", new List<Season> { Season.Spring, Season.Fall } }, // Catfish
-            { "(O)144", new List<Season> { Season.Summer, Season.Winter } }, // Pike
-            { "(O)145", new List<Season> { Season.Spring, Season.Summer } }, // Sunfish
-            { "(O)146", new List<Season> { Season.Summer, Season.Winter } }, // Red Mullet
-            { "(O)147", new List<Season> { Season.Spring, Season.Winter } }, // Herring
-            { "(O)148", new List<Season> { Season.Spring, Season.Fall } }, // Eel
             { "(O)150", new List<Season> { Season.Summer, Season.Fall } }, // Red Snapper
-            { "(O)154", new List<Season> { Season.Fall, Season.Winter } }, // Sea Cucumber
-            { "(O)155", new List<Season> { Season.Summer, Season.Fall } }, // Super Cucumber
-            { "(O)698", new List<Season> { Season.Summer, Season.Winter } }, // Sturgeon
-            { "(O)699", new List<Season> { Season.Fall, Season.Winter } }, // Tiger Trout
-            { "(O)701", new List<Season> { Season.Summer, Season.Fall } }, // Tilapia
-            { "(O)705", new List<Season> { Season.Fall, Season.Winter } }, // Albacore
-            { "(O)706", new List<Season> { Season.Spring, Season.Summer, Season.Fall } }, // Shad
-            { "(O)708", new List<Season> { Season.Spring, Season.Summer, Season.Winter } }, // Halibut
+            // probably confused by SquidFest
+            { "(O)151", new List<Season> { Season.Winter } }, // Squid
+            // any season
+            { "(O)682", ModEntry.seasons }, // Mutant Carp
+            // submarine only reachable in winter
             { "(O)798", new List<Season> { Season.Winter } }, // Midnight Squid
             { "(O)799", new List<Season> { Season.Winter } }, // Spook Fish
-            { "(O)800", new List<Season> { Season.Winter } }, // Blobfish
-            { "(O)267", new List<Season> { Season.Spring, Season.Summer } }, // Flounder
-            { "(O)269", new List<Season> { Season.Fall, Season.Winter } } // Midnight Carp
+            { "(O)800", new List<Season> { Season.Winter } } // Blobfish
         };
 
-        // Check if fish can be caught anywhere in a single season
-        private static Season? GetSeason(string fishId)
+        // Get list of season(s) in which a fish can be caught
+        //   * May vary by location, weather, time of day, etc.
+        //   * For simplicity, just get season(s) common to all locations where it can ever be caught
+        //   * e.g. Tuna can be caught in any season on Ginger Island, but only in summer/winter at beach
+        private static List<Season> GetSeasons(string fishId)
         {
+            // Check hardcoded data
+            if (FishSeasons.ContainsKey(fishId))
+            {
+                return FishSeasons[fishId];
+            }
+
+            // start with all seasons
+            var seasonsCommonToAllLocations = new List<Season>();
+            foreach (var season in ModEntry.seasons)
+            {
+                seasonsCommonToAllLocations.Add(season);
+            }
+
+            // mapping for parsing conditions            
+            var seasonStrings = new Dictionary<string, Season>
+            {
+                { "spring", Season.Spring },
+                { "summer", Season.Summer },
+                { "fall", Season.Fall },
+                { "winter", Season.Winter }
+            };
+
             foreach (var location in Game1.locations)
             {
                 var locationData = location.GetData();
@@ -104,40 +76,54 @@ namespace WhatDoYouWant
                 var locationFishList = locationData.Fish;
                 foreach (var locationFish in locationFishList)
                 {
-                    if (locationFish.ItemId == fishId)
+                    if (locationFish.ItemId != fishId)
                     {
-                        return locationFish.Season;
+                        continue;
+                    }
+
+                    // season(s) during which it can be caught at this location
+                    var locationSeasons = new List<Season>();
+                    
+                    if (locationFish.Season.HasValue)
+                    {
+                        // it can only be caught in one season in this location
+                        locationSeasons.Add((Season)locationFish.Season);
+                    }
+                    else if (locationFish.Condition != null)
+                    {
+                        // parse relevant conditions
+                        var conditionData = GameStateQuery.Parse(locationFish.Condition);
+                        var seasonalConditions = conditionData.Where(condition => GameStateQuery.SeasonQueryKeys.Contains(condition.Query[0]));
+                        foreach (var condition in seasonalConditions)
+                        {
+                            foreach (var season in seasonStrings)
+                            {
+                                if (!condition.Negated && condition.Query.Any(word => word.Equals(season.Key, StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    locationSeasons.Add(season.Value);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // it can be caught in any season in this location
+                        locationSeasons = ModEntry.seasons;
+                    }
+
+                    foreach (var season in ModEntry.seasons)
+                    {
+                        if (seasonsCommonToAllLocations.Contains(season) && !locationSeasons.Contains(season))
+                        {
+                            seasonsCommonToAllLocations.Remove(season);
+                        }
                     }
                 }
             }
-            return null;
+
+            return seasonsCommonToAllLocations;
         }
 
-        // Check which season(s) fish can be caught
-        //   * May vary by location and several other conditions
-        //   * For simplicity, this covers all base game fish and some modded fish (if GetSeason() can figure them out)
-        //   * TODO figure out how to parse locationData.Fish conditions more complex than "single season"
-        private static List<Season> GetSeasons(string fishId)
-        {
-            if (AllSeasonFish.Contains(fishId))
-            {
-                return ModEntry.seasons;
-            }
-
-            var season = GetSeason(fishId);
-            if (season != null)
-            {
-                return new List<Season>() { (Season)season };
-            }
-
-            if (FishSeasons.ContainsKey(fishId))
-            {
-                return FishSeasons[fishId];
-            };
-
-            return new List<Season>();
-        }
-        
         public static void ShowFishingList(ModEntry modInstance, Farmer who)
         {
             var sortBySeasonsSpringFirst = (modInstance.Config.FishingSortOrder == SortOrder_SeasonsSpringFirst);

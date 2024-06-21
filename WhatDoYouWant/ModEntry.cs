@@ -3,6 +3,7 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
+using StardewValley.ItemTypeDefinitions;
 
 namespace WhatDoYouWant
 {
@@ -34,6 +35,187 @@ namespace WhatDoYouWant
         public const string StringKey_AnyMilk = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.573";
         public const string StringKey_AnyEgg = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.572";
         public const string StringKey_AnyFish = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.571";
+
+        // Used by Community Center and Museum
+        private static readonly List<string> ItemsWithCustomDescriptions = new()
+        {
+            "(O)174", // Strings\\Objects:LargeWhiteEgg_Name "Large Egg"
+            "(O)182", // Strings\\Objects:LargeBrownEgg_Name "Large Egg"
+            "(O)SmokedFish", // Strings\\Objects:SmokedFish_Name "Smoked" - in other contexts, game adds name of specific fish
+            "(O)DriedFruit", // Strings\\Objects:DriedFruit_Name "Dried" - in other contexts, game adds name of specific fruit
+            "(O)DriedMushrooms", // Strings\\Objects:DriedMushrooms_Name "Dried"
+            "(O)126", // Strings\\Objects:StrangeDoll_Name "Strange Doll" (G)
+            "(O)127" // Strings\\Objects:StrangeDoll_Name "Strange Doll" (Y)
+        };
+
+        public string GetItemDescription(ParsedItemData? item)
+        {
+            if (item == null)
+            {
+                return "???";
+            }
+            return ItemsWithCustomDescriptions.Contains(item.QualifiedItemId)
+                ? Helper.Translation.Get($"ItemDescription_{item.QualifiedItemId}")
+                : item.DisplayName;
+        }
+
+        // Used by Cooking and Crafting
+        private const string ConditionToken_PierresShop = "Pierres_Shop";
+        private const string ConditionToken_CarpentersShop = "Carpenters_Shop";
+        private const string ConditionToken_Krobus = "Krobus";
+        private const string ConditionToken_IslandTrader = "Island_Trader";
+        private const string ConditionToken_QisWalnutRoom = "Qis_Walnut_Room";
+        private const string ConditionToken_CombatMastery = "Combat_Mastery";
+        private const string ConditionToken_ForagingMastery = "Foraging_Mastery";
+        private const string ConditionToken_MiningMastery = "Mining_Mastery";
+
+        private static readonly Dictionary<string, string?> RecipesWithCustomConditions = new()
+        {
+            // cooking
+            { "Cookies", null },
+            { "Triple Shot Espresso", null },
+            { "Ginger Ale", null },
+            { "Banana Pudding", ConditionToken_IslandTrader },
+            { "Tropical Curry", null },
+            // crafting
+            { "Ancient Seeds", null },
+            { "Anvil", ConditionToken_CombatMastery },
+            { "Barrel Brazier", ConditionToken_CarpentersShop },
+            { "Big Chest", ConditionToken_CarpentersShop },
+            { "Big Stone Chest", null },
+            { "Blue Grass Starter", ConditionToken_QisWalnutRoom },
+            { "Bone Mill", null },
+            { "Brick Floor", ConditionToken_CarpentersShop },
+            { "Carved Brazier", ConditionToken_CarpentersShop },
+            { "Cask", null },
+            { "Challenge Bait", null },
+            { "Crystal Floor", ConditionToken_Krobus },
+            { "Crystal Path", ConditionToken_CarpentersShop },
+            { "Dehydrator", ConditionToken_PierresShop },
+            { "Deluxe Fertilizer", ConditionToken_QisWalnutRoom },
+            { "Deluxe Retaining Soil", ConditionToken_IslandTrader },
+            { "Deluxe Scarecrow", null },
+            { "Drum Block", null },
+            { "Fairy Dust", null },
+            { "Farm Computer", null },
+            { "Fiber Seeds", null },
+            { "Fish Smoker", null },
+            { "Flute Block", null },
+            { "Furnace", null },
+            { "Garden Pot", null },
+            { "Geode Crusher", null },
+            { "Gold Brazier", ConditionToken_CarpentersShop },
+            { "Grass Starter", ConditionToken_PierresShop },
+            { "Heavy Furnace", ConditionToken_MiningMastery },
+            { "Heavy Tapper", ConditionToken_QisWalnutRoom },
+            { "Hopper", ConditionToken_QisWalnutRoom },
+            { "Hyper Speed-Gro", ConditionToken_QisWalnutRoom },
+            { "Iron Lamp-post", ConditionToken_CarpentersShop },
+            { "Jack-O-Lantern", null },
+            { "Magic Bait", ConditionToken_QisWalnutRoom },
+            { "Marble Brazier", ConditionToken_CarpentersShop },
+            { "Mini-Forge", ConditionToken_IslandTrader },
+            { "Mini-Jukebox", null },
+            { "Mini-Obelisk", null },
+            { "Monster Musk", null },
+            { "Mystic Tree Seed", ConditionToken_ForagingMastery },
+            { "Ostrich Incubator", null },
+            { "Quality Bobber", null },
+            { "Rustic Plank Floor", ConditionToken_CarpentersShop },
+            { "Skull Brazier", ConditionToken_CarpentersShop },
+            { "Solar Panel", null },
+            { "Statue Of Blessings", null },
+            { "Statue Of The Dwarf King", ConditionToken_MiningMastery },
+            { "Stepping Stone Path", ConditionToken_CarpentersShop },
+            { "Stone Brazier", ConditionToken_CarpentersShop },
+            { "Stone Chest", null },
+            { "Stone Floor", ConditionToken_CarpentersShop },
+            { "Stone Walkway Floor", ConditionToken_CarpentersShop },
+            { "Straw Floor", ConditionToken_CarpentersShop },
+            { "Stump Brazier", ConditionToken_CarpentersShop },
+            { "Tea Sapling", null },
+            { "Treasure Totem", ConditionToken_ForagingMastery },
+            { "Tub o' Flowers", null },
+            { "Warp Totem: Desert", null },
+            { "Warp Totem: Island", null },
+            { "Weathered Floor", ConditionToken_CarpentersShop },
+            { "Wicked Statue", ConditionToken_Krobus },
+            { "Wild Bait", null },
+            { "Wood Floor", ConditionToken_CarpentersShop },
+            { "Wood Lamp-post", ConditionToken_CarpentersShop },
+            { "Wooden Brazier", ConditionToken_CarpentersShop }
+        };
+
+        public string GetConditionDescription(string? recipe, string? condition, bool isCooking)
+        {
+            recipe = recipe ?? "";
+            condition = condition ?? "";
+
+            var descriptions = new List<string>();
+
+            // Friendship level
+            if (condition.StartsWith("f "))
+            {
+                descriptions.Add(condition.Substring(2));
+            }
+
+            // Skill level
+            if (condition.StartsWith("s "))
+            {
+                condition = condition.Substring(2);
+            }
+            if (
+                condition.StartsWith("Farming ")
+                    || condition.StartsWith("Foraging ")
+                    || condition.StartsWith("Fishing ")
+                    || condition.StartsWith("Mining ")
+                    || condition.StartsWith("Combat ")
+            )
+            {
+                var skillName = ArgUtility.Get(condition.Split(' '), 0);
+                var skillNumber = ArgUtility.Get(condition.Split(' '), 1);
+                var skillDisplayName = Farmer.getSkillDisplayNameFromIndex(Farmer.getSkillNumberFromName(skillName));
+                descriptions.Add($"{skillDisplayName} {skillNumber}");
+            }
+
+            // Queen of Sauce
+            if (isCooking)
+            {
+                var QueenOfSauceDictionary = DataLoader.Tv_CookingChannel(Game1.temporaryContent);
+                foreach (var QueenOfSauceEntry in QueenOfSauceDictionary)
+                {
+                    if (!QueenOfSauceEntry.Value.StartsWith(recipe + "/"))
+                    {
+                        continue;
+                    }
+
+                    int indexNumber = 0;
+                    int.TryParse(QueenOfSauceEntry.Key, out indexNumber); // 1 to 32
+                    int day = (((indexNumber - 1) % 4) + 1) * 7; // 1 to 28
+                    int season = ((indexNumber - 1) / 4) % 4; // 0 = spring -> 3 = winter
+                    int year = (indexNumber - 1) / 16 + 1;
+                    var dateString = Utility.getDateStringFor(day, season, year);
+
+                    var queenOfSauceTitle = Game1.content.LoadString("Strings\\StringsFromCSFiles:TV.cs.13114");
+
+                    descriptions.Add($"{queenOfSauceTitle} - {dateString}");
+                }
+            }
+
+            // Other stuff not included in standard recipe data
+            if (RecipesWithCustomConditions.ContainsKey(recipe))
+            {
+                var normalizedRecipe = RecipesWithCustomConditions[recipe] ?? recipe.Replace(" ", "_");
+                descriptions.Add(Helper.Translation.Get($"RecipeCondition_{normalizedRecipe}"));
+            }
+
+            if (descriptions.Count == 0)
+            {
+                descriptions.Add("???");
+            }
+
+            return string.Join(", ", descriptions);
+        }
 
         // Season logic used by Master Angler and Polyculture
 
