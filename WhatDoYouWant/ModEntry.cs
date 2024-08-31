@@ -36,9 +36,11 @@ namespace WhatDoYouWant
         public const string StringKey_AnyEgg = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.572";
         public const string StringKey_AnyFish = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.571";
 
-        // Used by Community Center and Museum
+        // Used by Community Center, Shipping, and Museum
         private static readonly List<string> ItemsWithCustomDescriptions = new()
         {
+            "(O)176", // Strings\\Objects:WhiteEgg_Name "Egg"
+            "(O)180", // Strings\\Objects:BrownEgg_Name "Egg"
             "(O)174", // Strings\\Objects:LargeWhiteEgg_Name "Large Egg"
             "(O)182", // Strings\\Objects:LargeBrownEgg_Name "Large Egg"
             "(O)SmokedFish", // Strings\\Objects:SmokedFish_Name "Smoked" - in other contexts, game adds name of specific fish

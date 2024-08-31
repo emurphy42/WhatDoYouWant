@@ -22,7 +22,7 @@ namespace WhatDoYouWant
                 .OrderBy(entry => sortByCollectionsTab ? entry.TextureName : "")
                 .ThenBy(entry => sortByCollectionsTab ? entry.SpriteIndex : 0)
                 .ThenBy(entry => sortByCategory ? StardewValley.Object.GetCategoryDisplayName(entry.Category) : "")
-                .ThenBy(entry => entry.DisplayName)
+                .ThenBy(entry => modInstance.GetItemDescription(entry))
             )
             {
                 switch (parsedItemData.Category)
@@ -48,7 +48,7 @@ namespace WhatDoYouWant
                         }
 
                         // Add it to the list
-                        var itemName = parsedItemData.DisplayName;
+                        var itemName = modInstance.GetItemDescription(parsedItemData);
                         var categoryName = StardewValley.Object.GetCategoryDisplayName(parsedItemData.Category);
                         if (string.IsNullOrWhiteSpace(categoryName))
                         {
