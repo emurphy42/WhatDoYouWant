@@ -125,6 +125,7 @@
   "Options_CookingSortOrder_KnownRecipesFirst": "Known recipes first",
   "Options_CookingSortOrder_RecipeName": "Recipe name",
   "Options_CookingSortOrder_CollectionsTab": "Based on Collections tab",
+  "Options_CookingSortOrder_Ingredients": "Ingredients only",
 
   // Craft Master
 
@@ -135,6 +136,7 @@
   "Options_CraftingSortOrder_KnownRecipesFirst": "Known recipes first",
   "Options_CraftingSortOrder_RecipeName": "Recipe name",
   "Options_CraftingSortOrder_CraftingMenu": "Based on Crafting menu",
+  "Options_CraftingSortOrder_Materials": "Materials only",
 
   // Master Angler
 

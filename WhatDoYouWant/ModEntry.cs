@@ -35,6 +35,7 @@ namespace WhatDoYouWant
         public const string StringKey_AnyMilk = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.573";
         public const string StringKey_AnyEgg = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.572";
         public const string StringKey_AnyFish = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.571";
+        public const string StringKey_AnyWildSeeds = "Strings\\StringsFromCSFiles:CraftingRecipe.cs.574";
 
         // Used by Community Center, Shipping, and Museum
         private static readonly List<string> ItemsWithCustomDescriptions = new()
@@ -431,7 +432,8 @@ namespace WhatDoYouWant
                 allowedValues: new string[] {
                     Cooking.SortOrder_KnownRecipesFirst,
                     Cooking.SortOrder_RecipeName,
-                    Cooking.SortOrder_CollectionsTab
+                    Cooking.SortOrder_CollectionsTab,
+                    Cooking.SortOrder_Ingredients
                 },
                 formatAllowedValue: value => Helper.Translation.Get($"Options_CookingSortOrder_{value}")
             );
@@ -446,7 +448,8 @@ namespace WhatDoYouWant
                 allowedValues: new string[] {
                     Crafting.SortOrder_KnownRecipesFirst,
                     Crafting.SortOrder_RecipeName,
-                    Crafting.SortOrder_CraftingMenu
+                    Crafting.SortOrder_CraftingMenu,
+                    Crafting.SortOrder_Materials
                 },
                 formatAllowedValue: value => Helper.Translation.Get($"Options_CraftingSortOrder_{value}")
             );
@@ -578,6 +581,24 @@ namespace WhatDoYouWant
         }
 
         // used by cooking and crafting
+        public static string GetIngredientName(string ingredientId)
+        {
+            switch (ingredientId)
+            {
+                case Cooking.CookingIngredient_AnyMilk:
+                    return Game1.content.LoadString(StringKey_AnyMilk);
+                case Cooking.CookingIngredient_AnyEgg:
+                    return Game1.content.LoadString(StringKey_AnyEgg);
+                case Cooking.CookingIngredient_AnyFish:
+                    return Game1.content.LoadString(StringKey_AnyFish);
+                case Crafting.CraftingIngredient_AnyWildSeeds:
+                    return Game1.content.LoadString(StringKey_AnyWildSeeds);
+                default:
+                    var ingredientDataOrErrorItem = ItemRegistry.GetDataOrErrorItem(ingredientId);
+                    return ingredientDataOrErrorItem.DisplayName;
+            }
+        }
+
         public static string GetIngredientText(string ingredients)
         {
             var ingredientList = ingredients.Trim().Split(' ');
@@ -585,23 +606,7 @@ namespace WhatDoYouWant
             for (var index = 0; index < ingredientList.Length; index += 2)
             {
                 var ingredientId = ingredientList[index];
-                string ingredientName;
-                switch (ingredientId)
-                {
-                    case Cooking.CookingIngredient_AnyMilk:
-                        ingredientName = Game1.content.LoadString(StringKey_AnyMilk);
-                        break;
-                    case Cooking.CookingIngredient_AnyEgg:
-                        ingredientName = Game1.content.LoadString(StringKey_AnyEgg);
-                        break;
-                    case Cooking.CookingIngredient_AnyFish:
-                        ingredientName = Game1.content.LoadString(StringKey_AnyFish);
-                        break;
-                    default:
-                        var ingredientDataOrErrorItem = ItemRegistry.GetDataOrErrorItem(ingredientId);
-                        ingredientName = ingredientDataOrErrorItem.DisplayName;
-                        break;
-                }
+                var ingredientName = GetIngredientName(ingredientId);
 
                 var ingredientQuantity = ArgUtility.GetInt(ingredientList, index + 1, 1);
                 if (ingredientQuantity != 1)
